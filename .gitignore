@@ -1,0 +1,15 @@
+node_modules/
+.env
+start-hidden.vbs
+data/*.db
+data/*.db-shm
+data/*.db-wal
+logs/
+config/google-service-account.json
+*.log
+.DS_Store
+Thumbs.db
+.next/
+dist/
+build/
+coverage/

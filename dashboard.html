@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oscar Auto — Mandy's Laundry SEO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      font-weight: 500;
+      background: #f2f3fb;
+      color: #1e1e3a;
+      display: flex;
+      min-height: 100vh;
+      font-size: 13.5px;
+    }
+
+    /* ── SIDEBAR ─────────────────────────────── */
+    .sidebar {
+      width: 230px;
+      min-width: 230px;
+      background: #fff;
+      border-right: 1px solid #ebebf5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      left: 0; top: 0;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 20px 18px 16px;
+      border-bottom: 1px solid #f0f0fa;
+    }
+
+    .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, #7c3aed, #ec4899);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
+
+    .logo-text { font-size: 15px; font-weight: 700; color: #1e1e3a; line-height: 1.1; }
+    .logo-sub  { font-size: 10px; color: #8888aa; font-weight: 500; }
+
+    .nav-section { padding: 14px 10px 6px; }
+    .nav-label   { font-size: 9.5px; color: #b0b0cc; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 0 8px 8px; }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #6668aa;
+      font-size: 12.5px;
+      font-weight: 500;
+      margin-bottom: 2px;
+      transition: all .15s;
+    }
+    .nav-item:hover       { background: #f5f3ff; color: #7c3aed; }
+    .nav-item.active      { background: linear-gradient(135deg,#ede9fe,#fce7f3); color: #7c3aed; font-weight: 600; }
+    .nav-item .nav-icon   { width: 18px; text-align: center; font-size: 15px; }
+    .nav-item .badge      { margin-left: auto; background: #ec4899; color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 1px 7px; }
+    .nav-item .badge.gray { background: #e8e8f5; color: #7c7caa; }
+
+
+    /* ── MAIN LAYOUT ─────────────────────────── */
+    .main {
+      margin-left: 230px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ── TOP BAR ─────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(242,243,251,.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid #ebebf5;
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 24px;
+    }
+
+    .topbar-back { width: 30px; height: 30px; border: 1.5px solid #e0e0f0; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; font-size: 13px; }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 8px;
+      background: #fff;
+      border: 1.5px solid #e8e8f5;
+      border-radius: 10px;
+      padding: 7px 14px;
+      flex: 1; max-width: 320px;
+      color: #aaa; font-size: 13px;
+    }
+    .search-bar input { border: none; outline: none; background: none; color: #444; flex: 1; font-size: 13px; }
+    .search-kbd { font-size: 10px; color: #bbb; background: #f5f5fa; border-radius: 4px; padding: 1px 5px; font-weight: 600; }
+
+    .topbar-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: #fff; border: 1.5px solid #e8e8f5;
+      border-radius: 10px; padding: 7px 14px;
+      font-size: 13px; font-weight: 500; color: #555;
+      cursor: pointer;
+    }
+    .topbar-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
+
+    .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .icon-btn { width: 34px; height: 34px; border: 1.5px solid #e8e8f5; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; font-size: 15px; position: relative; }
+    .icon-btn .dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #ec4899; border-radius: 50%; border: 1.5px solid #fff; }
+
+    .upgrade-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(135deg,#7c3aed,#ec4899);
+      color: #fff; border: none; border-radius: 10px;
+      padding: 8px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+    }
+
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#7c3aed,#ec4899); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+
+    /* ── PAGE CONTENT ────────────────────────── */
+    .content { padding: 24px; flex: 1; }
+
+    .breadcrumb { display: flex; align-items: center; gap: 6px; color: #aaa; font-size: 12px; margin-bottom: 16px; }
+    .breadcrumb span.sep { color: #ddd; }
+    .breadcrumb span.current { color: #7c3aed; font-weight: 600; }
+
+    /* ── HERO BANNER ─────────────────────────── */
+    .hero {
+      background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 40%, #db2777 100%);
+      border-radius: 20px;
+      padding: 28px 32px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 22px;
+      min-height: 148px;
+    }
+
+    .hero-bg-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,.06);
+    }
+    .hero-bg-circle.c1 { width: 200px; height: 200px; top: -80px; right: 320px; }
+    .hero-bg-circle.c2 { width: 140px; height: 140px; bottom: -50px; right: 240px; }
+
+    .hero-left h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .hero-left p  { font-size: 13px; opacity: .85; margin-bottom: 18px; }
+    .hero-btns    { display: flex; gap: 10px; }
+
+    .hero-btn {
+      display: flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: 10px;
+      color: #fff; font-size: 13px; font-weight: 600;
+      padding: 9px 16px; cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: background .15s;
+    }
+    .hero-btn:hover { background: rgba(255,255,255,.28); }
+    .hero-btn-icon { font-size: 16px; }
+
+    .hero-right {
+      display: flex; gap: 10px;
+      position: relative; z-index: 1;
+    }
+    .hero-img {
+      width: 100px; height: 92px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid rgba(255,255,255,.2);
+    }
+    .hero-img-inner { font-size: 42px; }
+    .hero-img.small { width: 100px; height: 42px; }
+    .hero-img.small .hero-img-inner { font-size: 22px; }
+    .hero-imgs-col { display: flex; flex-direction: column; gap: 8px; }
+
+    /* ── DATE HEADER ─────────────────────────── */
+    .date-export {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .date-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #777; }
+    .date-label strong { color: #1e1e3a; }
+    .export-btn { display: flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid #e8e8f5; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500; color: #555; cursor: pointer; }
+
+    /* ── STAT CARDS ──────────────────────────── */
+    .cards-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      border: 1px solid #f0f0fa;
+    }
+    .stat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .stat-icon.purple { background: linear-gradient(135deg,#ede9fe,#fce7f3); }
+    .stat-icon.green  { background: linear-gradient(135deg,#dcfce7,#d1fae5); }
+    .stat-icon.blue   { background: linear-gradient(135deg,#dbeafe,#ede9fe); }
+    .stat-icon.orange { background: linear-gradient(135deg,#ffedd5,#fef3c7); }
+
+    .stat-badge { display: flex; align-items: center; gap: 3px; background: #dcfce7; color: #16a34a; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 3px 8px; }
+    .stat-badge.down { background: #fee2e2; color: #dc2626; }
+
+    .stat-label { font-size: 12px; color: #9999bb; font-weight: 500; margin-bottom: 4px; }
+    .stat-value { font-size: 24px; font-weight: 800; color: #1e1e3a; }
+
+    /* ── BOTTOM GRID ─────────────────────────── */
+    .bottom-grid { display: grid; grid-template-columns: 1fr 1.9fr; gap: 18px; }
+
+    /* ── DB STORAGE CARD ─────────────────────── */
+    .db-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      border: 1px solid #f0f0fa;
+    }
+    .card-title { font-size: 14px; font-weight: 700; color: #1e1e3a; margin-bottom: 16px; display: flex; align-items: center; gap: 7px; }
+    .card-title .ct-icon { font-size: 16px; }
+
+    .db-donut-wrap { display: flex; align-items: center; justify-content: center; position: relative; margin: 6px auto 16px; width: 130px; height: 130px; }
+    .db-donut-center { position: absolute; text-align: center; }
+    .db-donut-pct   { font-size: 22px; font-weight: 800; color: #1e1e3a; line-height: 1; }
+    .db-donut-sub   { font-size: 10px; color: #9999bb; font-weight: 500; }
+
+    .db-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .db-stat  { background: #f8f8fd; border-radius: 10px; padding: 10px 12px; }
+    .db-stat-label { font-size: 10px; color: #aaa; font-weight: 500; margin-bottom: 3px; }
+    .db-stat-val   { font-size: 14px; font-weight: 700; color: #1e1e3a; }
+
+    .db-bar-row { margin-bottom: 10px; }
+    .db-bar-header { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 4px; }
+    .db-bar-bg { height: 7px; background: #f0f0fa; border-radius: 4px; overflow: hidden; }
+    .db-bar-fill { height: 100%; border-radius: 4px; }
+    .db-bar-fill.purple { background: linear-gradient(90deg,#7c3aed,#a855f7); }
+    .db-bar-fill.pink   { background: linear-gradient(90deg,#ec4899,#f472b6); }
+    .db-bar-fill.blue   { background: linear-gradient(90deg,#3b82f6,#60a5fa); }
+
+    /* ── CHART CARD ──────────────────────────── */
+    .chart-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      border: 1px solid #f0f0fa;
+    }
+    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .chart-title  { font-size: 14px; font-weight: 700; color: #1e1e3a; }
+    .chart-legend { display: flex; gap: 14px; }
+    .legend-item  { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #888; font-weight: 500; }
+    .legend-dot   { width: 8px; height: 8px; border-radius: 50%; }
+
+    .spending-overview {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .spending-label { font-size: 12px; color: #999; }
+    .spending-value { font-size: 18px; font-weight: 800; color: #1e1e3a; }
+    .spending-badge { display: flex; align-items: center; gap: 3px; background: #dcfce7; color: #16a34a; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 3px 8px; }
+
+    .chart-period {
+      display: flex; align-items: center; gap: 6px;
+      background: #f8f8fd; border-radius: 8px; padding: 6px 12px;
+      font-size: 12px; font-weight: 500; color: #555; cursor: pointer;
+    }
+
+    .chart-wrap { height: 180px; }
+
+    .breakdown-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
+    .breakdown-item { }
+    .bk-label { font-size: 11px; color: #999; margin-bottom: 5px; }
+    .bk-value { font-size: 15px; font-weight: 700; color: #1e1e3a; margin-bottom: 6px; }
+    .bk-bar-bg { height: 6px; background: #f0f0fa; border-radius: 3px; overflow: hidden; }
+    .bk-bar-fill { height: 100%; border-radius: 3px; }
+    .bk-bar-fill.v { background: linear-gradient(90deg,#7c3aed,#a855f7); }
+    .bk-bar-fill.s { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
+    .bk-bar-fill.a { background: linear-gradient(90deg,#10b981,#34d399); }
+
+    /* ── RECENT ACTIVITY ─────────────────────── */
+    .activity-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      border: 1px solid #f0f0fa;
+      margin-top: 18px;
+    }
+    .activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .view-all { font-size: 12px; color: #7c3aed; font-weight: 600; cursor: pointer; }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead th { text-align: left; font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; padding: 6px 10px; }
+    tbody tr { border-top: 1px solid #f5f5fa; }
+    tbody tr:hover { background: #faf9ff; }
+    tbody td { padding: 11px 10px; font-size: 12px; color: #444; }
+    tbody td strong { color: #1e1e3a; font-weight: 600; }
+
+    .status-pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 3px 9px; }
+    .status-pill.indexed    { background: #dcfce7; color: #16a34a; }
+    .status-pill.published  { background: #dbeafe; color: #2563eb; }
+    .status-pill.generating { background: #fef3c7; color: #d97706; }
+    .status-pill.failed     { background: #fee2e2; color: #dc2626; }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 1100px) {
+      .cards-row { grid-template-columns: repeat(2,1fr); }
+      .bottom-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .cards-row { grid-template-columns: repeat(2,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ───────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">M</div>
+    <div>
+      <div class="logo-text">Oscar Auto</div>
+      <div class="logo-sub">Mandy's Laundry SEO</div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Main</div>
+    <div class="nav-item active"><span class="nav-icon">📊</span> SEO Dashboard</div>
+    <div class="nav-item"><span class="nav-icon">📈</span> Analytics</div>
+    <div class="nav-item"><span class="nav-icon">🖥️</span> System Overview</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Pipeline</div>
+    <div class="nav-item"><span class="nav-icon">✍️</span> Content Generator</div>
+    <div class="nav-item"><span class="nav-icon">🌐</span> WordPress Publisher</div>
+    <div class="nav-item"><span class="nav-icon">🔍</span> Google Indexing</div>
+    <div class="nav-item"><span class="nav-icon">⏱️</span> Scheduler</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Apps</div>
+    <div class="nav-item"><span class="nav-icon">🗂️</span> Workflows</div>
+    <div class="nav-item"><span class="nav-icon">📨</span> Telegram Bot <span class="badge">3</span></div>
+    <div class="nav-item"><span class="nav-icon">📅</span> Schedule</div>
+    <div class="nav-item"><span class="nav-icon">📄</span> Reports <span class="badge gray">2</span></div>
+  </div>
+
+  <div class="nav-section" style="margin-top:auto">
+    <div class="nav-item"><span class="nav-icon">❤️</span> Health Monitor</div>
+    <div class="nav-item"><span class="nav-icon">⚙️</span> Settings</div>
+  </div>
+
+</aside>
+
+<!-- ── MAIN ──────────────────────────────────── -->
+<div class="main">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-back">←</div>
+    <div class="search-bar">
+      🔍
+      <input type="text" placeholder="Search workflows or pages..." />
+      <span class="search-kbd">⌘ K</span>
+    </div>
+    <div class="topbar-btn">🤖 AI Studio ▾</div>
+    <div class="topbar-btn">🛠️ Pipeline Tools ▾</div>
+    <div class="topbar-actions">
+      <button class="upgrade-btn">⚡ Upgrade</button>
+      <div class="icon-btn">🌙</div>
+      <div class="icon-btn">🔔<span class="dot"></span></div>
+      <div class="icon-btn">💬<span class="dot"></span></div>
+      <div class="avatar">O</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Breadcrumb + Date -->
+    <div class="breadcrumb">
+      <span>Home</span><span class="sep">/</span><span class="current">SEO Dashboard</span>
+    </div>
+
+    <!-- HERO BANNER -->
+    <div class="hero">
+      <div class="hero-bg-circle c1"></div>
+      <div class="hero-bg-circle c2"></div>
+      <div class="hero-left">
+        <h1>Welcome, Oscar! 👋</h1>
+        <p>Automate. Publish. Rank. — Mandy's Laundry SEO Engine</p>
+        <div class="hero-btns">
+          <button class="hero-btn"><span class="hero-btn-icon">✍️</span> Generate Content</button>
+          <button class="hero-btn"><span class="hero-btn-icon">🚀</span> Run Pipeline</button>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="hero-img"><div class="hero-img-inner">👕</div></div>
+        <div class="hero-imgs-col">
+          <div class="hero-img small"><div class="hero-img-inner">🔍</div></div>
+          <div class="hero-img small"><div class="hero-img-inner">📊</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Date + Export -->
+    <div class="date-export">
+      <div class="date-label">📅 <strong>01 Jun 26 — 29 Jun 26</strong></div>
+      <button class="export-btn">⬇️ Export Report</button>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="cards-row">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon purple">🤖</div>
+          <div class="stat-badge">↑ 5%</div>
+        </div>
+        <div class="stat-label">Active Workflows</div>
+        <div class="stat-value">3</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-badge">↑ 5%</div>
+        </div>
+        <div class="stat-label">Index Success Rate</div>
+        <div class="stat-value">98.2%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon blue">📄</div>
+          <div class="stat-badge">↑ 5%</div>
+        </div>
+        <div class="stat-label">Pages Generated</div>
+        <div class="stat-value">1.2K</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <div class="stat-icon orange">⚡</div>
+          <div class="stat-badge">↑ 5%</div>
+        </div>
+        <div class="stat-label">Avg Publish Time</div>
+        <div class="stat-value">8.4s</div>
+      </div>
+    </div>
+
+    <!-- BOTTOM GRID: DB Card + Chart -->
+    <div class="bottom-grid">
+
+      <!-- DB / Storage Card -->
+      <div class="db-card">
+        <div class="card-title"><span class="ct-icon">🗄️</span> Database Status</div>
+        <div class="db-donut-wrap">
+          <canvas id="donutChart" width="130" height="130"></canvas>
+          <div class="db-donut-center">
+            <div class="db-donut-pct">74 MB</div>
+            <div class="db-donut-sub">of 500 MB</div>
+          </div>
+        </div>
+        <div class="db-stats">
+          <div class="db-stat">
+            <div class="db-stat-label">Pages Stored</div>
+            <div class="db-stat-val">1,248</div>
+          </div>
+          <div class="db-stat">
+            <div class="db-stat-label">Jobs Queued</div>
+            <div class="db-stat-val">4</div>
+          </div>
+          <div class="db-stat">
+            <div class="db-stat-label">Failed Jobs</div>
+            <div class="db-stat-val">2</div>
+          </div>
+          <div class="db-stat">
+            <div class="db-stat-label">Avg Index Time</div>
+            <div class="db-stat-val">3.1s</div>
+          </div>
+        </div>
+        <div class="db-bar-row">
+          <div class="db-bar-header"><span>Content Data</span><span>48 MB</span></div>
+          <div class="db-bar-bg"><div class="db-bar-fill purple" style="width:65%"></div></div>
+        </div>
+        <div class="db-bar-row">
+          <div class="db-bar-header"><span>Logs & Metrics</span><span>16 MB</span></div>
+          <div class="db-bar-bg"><div class="db-bar-fill pink" style="width:22%"></div></div>
+        </div>
+        <div class="db-bar-row">
+          <div class="db-bar-header"><span>Queue Data</span><span>10 MB</span></div>
+          <div class="db-bar-bg"><div class="db-bar-fill blue" style="width:13%"></div></div>
+        </div>
+      </div>
+
+      <!-- Performance Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">📈 SEO Output &amp; API Usage</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="chart-legend">
+              <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> Pages</div>
+              <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> API Calls</div>
+            </div>
+            <div class="chart-period">Monthly ▾</div>
+          </div>
+        </div>
+        <div class="spending-overview">
+          <span class="spending-label">Published this month:</span>
+          <span class="spending-value">248 pages</span>
+          <span class="spending-badge">↑ 21%</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="perfChart"></canvas>
+        </div>
+        <div class="breakdown-row">
+          <div class="breakdown-item">
+            <div class="bk-label">Wordpress Publishes</div>
+            <div class="bk-value">248</div>
+            <div class="bk-bar-bg"><div class="bk-bar-fill v" style="width:70%"></div></div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bk-label">Google Index Requests</div>
+            <div class="bk-value">231</div>
+            <div class="bk-bar-bg"><div class="bk-bar-fill s" style="width:55%"></div></div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bk-label">Claude API Calls</div>
+            <div class="bk-value">496</div>
+            <div class="bk-bar-bg"><div class="bk-bar-fill a" style="width:90%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY TABLE -->
+    <div class="activity-card">
+      <div class="activity-header">
+        <div class="card-title" style="margin-bottom:0"><span class="ct-icon">🕐</span> Recent Page Activity</div>
+        <div class="view-all">View all →</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Page Title</th>
+            <th>Slug</th>
+            <th>Published</th>
+            <th>Indexed</th>
+            <th>Duration</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Best Dry Cleaning in Miami</strong></td>
+            <td style="color:#7c3aed">best-dry-cleaning-miami</td>
+            <td>Jun 29, 06:14</td>
+            <td>Jun 29, 06:15</td>
+            <td>62s</td>
+            <td><span class="status-pill indexed">● Indexed</span></td>
+          </tr>
+          <tr>
+            <td><strong>Same Day Laundry Service Near Me</strong></td>
+            <td style="color:#7c3aed">same-day-laundry-near-me</td>
+            <td>Jun 29, 06:12</td>
+            <td>Jun 29, 06:13</td>
+            <td>58s</td>
+            <td><span class="status-pill indexed">● Indexed</span></td>
+          </tr>
+          <tr>
+            <td><strong>How to Remove Wine Stains from Linen</strong></td>
+            <td style="color:#7c3aed">remove-wine-stains-linen</td>
+            <td>Jun 29, 06:10</td>
+            <td>—</td>
+            <td>45s</td>
+            <td><span class="status-pill published">● Published</span></td>
+          </tr>
+          <tr>
+            <td><strong>Affordable Laundromat Miami Beach</strong></td>
+            <td style="color:#7c3aed">laundromat-miami-beach</td>
+            <td>—</td>
+            <td>—</td>
+            <td>—</td>
+            <td><span class="status-pill generating">⏳ Generating</span></td>
+          </tr>
+          <tr>
+            <td><strong>Fabric Care Guide for Wool Garments</strong></td>
+            <td style="color:#7c3aed">fabric-care-wool-garments</td>
+            <td>Jun 28, 06:08</td>
+            <td>—</td>
+            <td>71s</td>
+            <td><span class="status-pill failed">✕ Index Failed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // ── Donut Chart ──────────────────────────────
+  const donut = document.getElementById('donutChart').getContext('2d');
+  new Chart(donut, {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [65, 22, 13],
+        backgroundColor: ['#7c3aed', '#ec4899', '#3b82f6'],
+        borderWidth: 0,
+        hoverOffset: 4,
+      }]
+    },
+    options: {
+      cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      responsive: false,
+    }
+  });
+
+  // ── Performance Chart ────────────────────────
+  const perf = document.getElementById('perfChart').getContext('2d');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  new Chart(perf, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [
+        {
+          label: 'Pages Published',
+          data: [120,180,210,155,230,248,0,0,0,0,0,0],
+          backgroundColor: (ctx) => {
+            const g = ctx.chart.ctx.createLinearGradient(0,0,0,180);
+            g.addColorStop(0,'rgba(124,58,237,.7)');
+            g.addColorStop(1,'rgba(124,58,237,.08)');
+            return g;
+          },
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: 'API Calls',
+          type: 'line',
+          data: [300,220,280,210,320,310,null,null,null,null,null,null],
+          borderColor: '#f59e0b',
+          backgroundColor: 'rgba(245,158,11,.12)',
+          pointBackgroundColor: '#fff',
+          pointBorderColor: '#f59e0b',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          tension: .4,
+          fill: true,
+          yAxisID: 'y1',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#bbb' } },
+        y:  { grid: { color: '#f0f0fa' }, ticks: { font: { size: 10 }, color: '#bbb' }, beginAtZero: true },
+        y1: { display: false, beginAtZero: true },
+      }
+    }
+  });
+</script>
+</body>
+</html>
