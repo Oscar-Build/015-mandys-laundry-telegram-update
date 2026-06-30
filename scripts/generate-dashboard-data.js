@@ -2,8 +2,8 @@
 
 /**
  * Generates data.json for the GitHub Pages static dashboard.
- * Queries WordPress REST API and Google Search Console directly.
- * Writes the file to the repo root so GitHub Pages can serve it.
+ * Queries WordPress REST API, Google Search Console, and GA4 directly.
+ * Uses axios for all HTTP calls to avoid undici "Premature close" on Node 22.
  */
 
 require('dotenv').config();
@@ -15,16 +15,6 @@ const axios = require('axios');
 const WP_API  = process.env.WORDPRESS_API_URL;
 const WP_USER = process.env.WORDPRESS_USERNAME;
 const WP_PASS = process.env.WORDPRESS_APP_PASSWORD;
-
-// Refresh an OAuth2 token using axios (avoids undici "Premature close" on Node 22)
-async function getAccessToken(clientId, clientSecret, refreshToken) {
-  const res = await axios.post(
-    'https://oauth2.googleapis.com/token',
-    new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: 'refresh_token' }).toString(),
-    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 15000 }
-  );
-  return res.data.access_token;
-}
 const WP_AUTH = WP_USER && WP_PASS
   ? 'Basic ' + Buffer.from(`${WP_USER}:${WP_PASS}`).toString('base64')
   : null;
@@ -35,6 +25,16 @@ function wpHeaders() {
   return WP_AUTH ? { Authorization: WP_AUTH } : {};
 }
 
+// Refresh an OAuth2 token using axios (avoids undici "Premature close" on Node 22)
+async function getAccessToken(clientId, clientSecret, refreshToken) {
+  const res = await axios.post(
+    'https://oauth2.googleapis.com/token',
+    new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: 'refresh_token' }).toString(),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 15000 }
+  );
+  return res.data.access_token;
+}
+
 async function fetchWPPosts() {
   if (!WP_API) return [];
   try {
@@ -43,7 +43,8 @@ async function fetchWPPosts() {
       headers: wpHeaders(),
       timeout: 20000,
     });
-    return (res.data || []).map(p => ({
+    const items = Array.isArray(res.data) ? res.data : [];
+    return items.map(p => ({
       id:           String(p.id),
       title:        p.title?.rendered || p.title || '—',
       slug:         p.slug || '',
@@ -67,7 +68,8 @@ async function fetchWPPages() {
       headers: wpHeaders(),
       timeout: 20000,
     });
-    return (res.data || []).map(p => {
+    const items = Array.isArray(res.data) ? res.data : [];
+    return items.map(p => {
       const title = p.title?.rendered || p.title || '';
       const { city, state, serviceType } = parsePageMeta(title, p.slug || '');
       return {
@@ -91,13 +93,11 @@ async function fetchWPPages() {
 }
 
 function parsePageMeta(title, slug) {
-  // Try "Service in City, ST" or "Service - City, ST"
   const m = title.match(/\bin\s+([^,]+),\s*([A-Z]{2})\b/i)
          || title.match(/[-–]\s*([^,]+),\s*([A-Z]{2})\b/i);
   if (m) {
     return { city: m[1].trim(), state: m[2].toUpperCase(), serviceType: title.split(/\bin\b|-/i)[0].trim() };
   }
-  // Fall back to slug parsing: last-word might be state abbreviation
   const parts = slug.split('-');
   if (parts.length >= 2) {
     const maybeState = parts[parts.length - 1].toUpperCase();
@@ -118,31 +118,25 @@ async function fetchGSC() {
   if (!clientId || !refreshToken || !siteUrl) return null;
 
   try {
-    const { google } = require('googleapis');
     const accessToken = await getAccessToken(clientId, clientSecret, refreshToken);
-    const auth = new google.auth.OAuth2(clientId, clientSecret);
-    auth.setCredentials({ access_token: accessToken });
-    const sc  = google.searchconsole({ version: 'v1', auth });
-    const end   = new Date().toISOString().slice(0, 10);
-    const start = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
+    const authHeader  = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+    const encoded     = encodeURIComponent(siteUrl);
+    const end         = new Date().toISOString().slice(0, 10);
+    const start28     = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
+    const start14     = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+    const base        = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encoded}/searchAnalytics/query`;
 
-    const [summary, trend] = await Promise.all([
-      sc.searchanalytics.query({
-        siteUrl,
-        requestBody: { startDate: start, endDate: end, dimensions: ['query'], rowLimit: 100 },
-      }),
-      sc.searchanalytics.query({
-        siteUrl,
-        requestBody: { startDate: new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10), endDate: end, dimensions: ['date'], rowLimit: 14 },
-      }),
+    const [summaryRes, trendRes] = await Promise.all([
+      axios.post(base, { startDate: start28, endDate: end, dimensions: ['query'], rowLimit: 100 }, { headers: authHeader, timeout: 20000 }),
+      axios.post(base, { startDate: start14, endDate: end, dimensions: ['date'],  rowLimit: 14  }, { headers: authHeader, timeout: 20000 }),
     ]);
 
-    const rows = summary.data.rows || [];
+    const rows = summaryRes.data.rows || [];
     const totals = rows.reduce((s, r) => ({ imp: s.imp + r.impressions, clk: s.clk + r.clicks, pos: s.pos + r.position }), { imp: 0, clk: 0, pos: 0 });
     const avgPos = rows.length > 0 ? (totals.pos / rows.length).toFixed(1) : null;
     const avgCtr = totals.imp > 0 ? ((totals.clk / totals.imp) * 100).toFixed(1) : '0.0';
 
-    const gscTrend = (trend.data.rows || []).map(r => ({
+    const gscTrend = (trendRes.data.rows || []).map(r => ({
       date:        r.keys[0],
       impressions: Math.round(r.impressions),
       clicks:      Math.round(r.clicks),
@@ -150,17 +144,17 @@ async function fetchGSC() {
 
     return {
       summary: {
-        impressions: Math.round(totals.imp),
-        clicks:      Math.round(totals.clk),
-        avg_ctr:     avgCtr,
+        impressions:  Math.round(totals.imp),
+        clicks:       Math.round(totals.clk),
+        avg_ctr:      avgCtr,
         avg_position: avgPos,
-        date_range:  '28 days',
-        synced_at:   new Date().toISOString(),
+        date_range:   '28 days',
+        synced_at:    new Date().toISOString(),
       },
       trend: gscTrend,
     };
   } catch (err) {
-    console.warn('GSC fetch failed:', err.message);
+    console.warn('GSC fetch failed:', err.response?.data?.error?.message || err.message);
     return null;
   }
 }
@@ -173,35 +167,27 @@ async function fetchGA4() {
   if (!clientId || !refreshToken || !propertyId) return null;
 
   try {
-    const { google } = require('googleapis');
     const accessToken = await getAccessToken(clientId, clientSecret, refreshToken);
-    const auth = new google.auth.OAuth2(clientId, clientSecret);
-    auth.setCredentials({ access_token: accessToken });
-    const analyticsdata = google.analyticsdata({ version: 'v1beta', auth });
+    const authHeader  = { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' };
+    const base        = `https://analyticsdata.googleapis.com/v1beta/properties/${propertyId}:runReport`;
 
     const [trafficRes, organicRes] = await Promise.all([
-      analyticsdata.properties.runReport({
-        property: `properties/${propertyId}`,
-        requestBody: {
-          dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
-          metrics: [
-            { name: 'sessions' },
-            { name: 'activeUsers' },
-            { name: 'newUsers' },
-            { name: 'bounceRate' },
-            { name: 'averageSessionDuration' },
-            { name: 'conversions' },
-          ],
-        },
-      }),
-      analyticsdata.properties.runReport({
-        property: `properties/${propertyId}`,
-        requestBody: {
-          dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
-          dimensions: [{ name: 'sessionDefaultChannelGroup' }],
-          metrics: [{ name: 'sessions' }],
-        },
-      }),
+      axios.post(base, {
+        dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'activeUsers' },
+          { name: 'newUsers' },
+          { name: 'bounceRate' },
+          { name: 'averageSessionDuration' },
+          { name: 'conversions' },
+        ],
+      }, { headers: authHeader, timeout: 20000 }),
+      axios.post(base, {
+        dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+        dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+        metrics:    [{ name: 'sessions' }],
+      }, { headers: authHeader, timeout: 20000 }),
     ]);
 
     const row = trafficRes.data.rows?.[0]?.metricValues || [];
@@ -220,7 +206,7 @@ async function fetchGA4() {
       synced_at:            new Date().toISOString(),
     };
   } catch (err) {
-    console.warn('GA4 fetch failed:', err.message);
+    console.warn('GA4 fetch failed:', err.response?.data?.error?.message || err.message);
     return null;
   }
 }
