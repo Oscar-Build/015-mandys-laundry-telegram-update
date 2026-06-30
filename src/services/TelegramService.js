@@ -17,12 +17,19 @@ function getBot() {
   return bot;
 }
 
+const DASHBOARD_URL = 'https://oscar-build.github.io/015-mandys-laundry-telegram-update/';
+
 function esc(text) {
   if (!text) return '';
   return String(text)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+}
+
+function link(url, label) {
+  if (!url) return '';
+  return `<a href="${url}">${esc(label || url)}</a>`;
 }
 
 function now() {
@@ -86,7 +93,7 @@ async function notifyPagePublished(page) {
     `✅ <b>Page Published</b>`,
     ``,
     `📄 <b>Title:</b> ${esc(page.title)}`,
-    page.url ? `🔗 <b>URL:</b> ${esc(page.url)}` : '',
+    page.url ? `🔗 ${link(page.url, 'View Post →')}` : '',
     page.duration_ms ? `⏱ <b>Duration:</b> ${(page.duration_ms / 1000).toFixed(2)}s` : '',
     `🕐 ${esc(now())}`,
   ].filter(Boolean).join('\n');
@@ -99,7 +106,7 @@ async function notifyIndexingSubmitted(page) {
     `📤 <b>Indexing Submitted</b>`,
     ``,
     `📄 <b>Title:</b> ${esc(page.title)}`,
-    page.url ? `🔗 <b>URL:</b> ${esc(page.url)}` : '',
+    page.url ? `🔗 ${link(page.url, 'View Page →')}` : '',
     `🕐 ${esc(now())}`,
   ].filter(Boolean).join('\n');
   await send(msg, `index_submitted:${page.id}`);
@@ -107,10 +114,10 @@ async function notifyIndexingSubmitted(page) {
 
 async function notifyPageIndexed(page) {
   const msg = [
-    `📈 <b>Page Indexed</b>`,
+    `📈 <b>Page Indexed by Google</b>`,
     ``,
     `📄 <b>Title:</b> ${esc(page.title)}`,
-    page.url ? `🔗 <b>URL:</b> ${esc(page.url)}` : '',
+    page.url ? `🔗 ${link(page.url, 'View Page →')}` : '',
     page.duration_ms ? `⏱ <b>Duration:</b> ${(page.duration_ms / 1000).toFixed(2)}s` : '',
     `🕐 ${esc(now())}`,
   ].filter(Boolean).join('\n');
@@ -186,7 +193,7 @@ async function notifyWorkflowCompleted(page) {
     `✅ <b>Workflow Complete</b>`,
     ``,
     `📄 <b>Title:</b> ${esc(page.title)}`,
-    page.url ? `🔗 <b>URL:</b> ${esc(page.url)}` : '',
+    page.url ? `🔗 ${link(page.url, 'View Post →')}` : '',
     page.duration_ms ? `⏱ <b>Total:</b> ${(page.duration_ms / 1000).toFixed(2)}s` : '',
     `🕐 ${esc(now())}`,
   ].filter(Boolean).join('\n');
@@ -202,7 +209,7 @@ async function notifyLandingPagePublished({ id, city, state, serviceType, title,
     `📍 <b>Location:</b> ${esc(`${city}, ${state}`)}`,
     `🏷️ <b>Service:</b> ${esc(serviceType)}`,
     `📄 <b>Title:</b> ${esc(title)}`,
-    url ? `🔗 <b>URL:</b> ${esc(url)}` : '',
+    url ? `🔗 ${link(url, 'View Page →')}` : '',
     `🕐 ${esc(now())}`,
   ].filter(Boolean).join('\n');
   await send(msg, `landing_published:${id}`);
@@ -228,10 +235,11 @@ async function notifySEOCriticalIssues(issues) {
   const lines = [
     `🚨 <b>Critical SEO Issues Detected</b>`,
     ``,
-    ...topIssues.map((i, n) => `${n + 1}. ${esc(i.type)}: ${esc((i.url || '').slice(0, 60))}`),
+    ...topIssues.map((i, n) => `${n + 1}. ${esc(i.type)}: ${i.url ? link(i.url, i.url.slice(0, 50)) : '—'}`),
     '',
     issues.length > 5 ? `<i>... and ${issues.length - 5} more</i>` : '',
     `🕐 ${esc(now())}`,
+    `📊 ${link(DASHBOARD_URL, 'View Dashboard →')}`,
   ].filter(l => l !== '');
   await send(lines.join('\n'));
 }
@@ -253,7 +261,7 @@ async function notifyBrokenLinks(links) {
     ``,
     `Total: ${links.length} broken links`,
     ``,
-    ...top.map(l => `• HTTP ${l.status}: ${esc((l.url || '').slice(0, 70))}`),
+    ...top.map(l => `• HTTP ${l.status}: ${l.url ? link(l.url, l.url.slice(0, 60)) : '—'}`),
     `🕐 ${esc(now())}`,
   ];
   await send(lines.join('\n'));
@@ -301,6 +309,8 @@ async function sendBatchSummary(type, total, passed) {
     failed > 0 ? `❌ <b>Failed:</b> ${failed}` : '',
     `📈 <b>Success Rate:</b> ${rate}%`,
     `🕐 ${esc(now())}`,
+    ``,
+    `📊 ${link(DASHBOARD_URL, 'View Dashboard →')}`,
   ].filter(Boolean).join('\n');
   await send(msg);
 }
@@ -339,6 +349,8 @@ async function sendDailyReport(report) {
     ].join('\n') : '',
     ``,
     `🕐 ${esc(now())}`,
+    ``,
+    `📊 ${link(DASHBOARD_URL, 'View Dashboard →')}`,
   ].filter(l => l !== '');
 
   await send(lines.join('\n'));
@@ -367,6 +379,8 @@ async function sendWeeklyReport(report, extras = {}) {
     `  Open Issues: ${s.openIssuesTotal || 0}`,
     ``,
     `🕐 ${esc(now())}`,
+    ``,
+    `📊 ${link(DASHBOARD_URL, 'View Dashboard →')}`,
   ];
 
   await send(lines.join('\n'));
@@ -415,6 +429,8 @@ async function sendDailySummary(metrics) {
     `🔄 Retries: ${metrics.retries_performed || 0}`,
     ``,
     `🕐 ${esc(now())}`,
+    ``,
+    `📊 ${link(DASHBOARD_URL, 'View Dashboard →')}`,
   ].join('\n');
 
   await send(msg);
