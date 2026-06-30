@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mandy's Laundry — SEO Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text2: #334155;
+      --muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --yellow: #d97706;
+      --yellow-light: #fffbeb;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --sidebar: 240px;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.04);
+    }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: var(--sidebar);
+      min-width: var(--sidebar);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      height: 100vh;
+      position: fixed;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 50;
+    }
+
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(37,99,235,.3);
+    }
+    .brand-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .brand-sub  { font-size: 11px; color: var(--muted); margin-left: 46px; margin-top: -2px; }
+
+    .nav-section { padding: 8px 8px 0; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted);
+      padding: 8px 8px 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text2);
+      font-size: 13.5px; font-weight: 500;
+      margin-bottom: 2px;
+      transition: background .12s, color .12s;
+      text-decoration: none;
+    }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-tag {
+      margin-left: auto;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 20px;
+      background: var(--red); color: #fff;
+    }
+    .nav-tag.green { background: var(--green); }
+    .nav-tag.gray  { background: var(--surface2); color: var(--muted); }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .system-status {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text2);
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(5,150,105,.3); } 50% { opacity:.8; box-shadow:0 0 0 4px rgba(5,150,105,0); } }
+
+    /* ── MAIN ── */
+    .main {
+      margin-left: var(--sidebar);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 40;
+    }
+    .topbar-left { display: flex; flex-direction: column; }
+    .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .topbar-sub   { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; color: var(--green);
+      background: var(--green-light);
+      border: 1px solid #a7f3d0;
+      padding: 5px 12px; border-radius: 20px;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    #last-refresh { font-size: 12px; color: var(--muted); }
+
+    /* ── PAGES ── */
+    .page { padding: 28px; display: none; max-width: 1400px; }
+    .page.active { display: block; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 20px; font-weight: 700; color: var(--text); }
+    .page-header p  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .kpi-card.green::before  { background: var(--green); }
+    .kpi-card.yellow::before { background: var(--yellow); }
+    .kpi-card.red::before    { background: var(--red); }
+    .kpi-card.purple::before { background: var(--purple); }
+    .kpi-icon { font-size: 20px; margin-bottom: 10px; }
+    .kpi-label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .kpi-value { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .kpi-sub   { font-size: 12px; color: var(--muted); margin-top: 5px; }
+    .kpi-pill  {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      margin-top: 8px;
+    }
+    .kpi-pill.green  { background: var(--green-light);  color: var(--green); }
+    .kpi-pill.red    { background: var(--red-light);    color: var(--red); }
+    .kpi-pill.yellow { background: var(--yellow-light); color: var(--yellow); }
+    .kpi-pill.blue   { background: var(--primary-light); color: var(--primary); }
+
+    /* ── GRID LAYOUTS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+    @media (max-width: 960px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-head-left { display: flex; align-items: center; gap: 10px; }
+    .card-head-icon {
+      width: 32px; height: 32px;
+      background: var(--primary-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .card-head-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .card-head-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .card-body { padding: 20px; }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    thead tr { background: var(--surface2); }
+    th {
+      text-align: left; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--muted); padding: 10px 16px;
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f8fafc; }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-critical { background: var(--red-light);    color: var(--red); }
+    .badge-high     { background: var(--yellow-light); color: var(--yellow); }
+    .badge-medium   { background: var(--primary-light); color: var(--primary); }
+    .badge-low      { background: var(--surface2);     color: var(--muted); }
+    .badge-open     { background: var(--yellow-light); color: var(--yellow); }
+    .badge-resolved { background: var(--green-light);  color: var(--green); }
+    .badge-running  { background: var(--green-light);  color: var(--green); }
+    .badge-green    { background: var(--green-light);  color: var(--green); }
+    .badge-blue     { background: var(--primary-light); color: var(--primary); }
+    .badge-red      { background: var(--red-light);    color: var(--red); }
+    .badge-yellow   { background: var(--yellow-light); color: var(--yellow); }
+    .badge-gray     { background: var(--surface2);     color: var(--muted); }
+
+    /* ── WORKER CARDS ── */
+    .workers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+    .worker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .worker-icon { font-size: 28px; margin-bottom: 10px; }
+    .worker-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .worker-desc { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+    .worker-status-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .w-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .w-dot.yellow { background: var(--yellow); }
+    .w-dot.red    { background: var(--red); }
+
+    /* ── SCHEDULE ── */
+    .schedule-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+    }
+    .schedule-row:last-child { border-bottom: none; }
+    .schedule-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .schedule-cron { font-size: 12px; color: var(--muted); font-family: 'Courier New', monospace; margin-top: 2px; }
+    .schedule-badge {
+      font-size: 11px; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; background: var(--green-light); color: var(--green);
+    }
+
+    /* ── STATS ROWS (inside cards) ── */
+    .stat-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: 13px; color: var(--text2); }
+    .stat-value { font-size: 14px; font-weight: 700; color: var(--text); }
+
+    /* ── METRIC GRID (inside cards) ── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .metric-item .metric-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+    .metric-item .metric-val   { font-size: 22px; font-weight: 800; color: var(--text); }
+
+    /* ── CHARTS ── */
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 48px 20px; text-align: center;
+    }
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .empty-state-text  { font-size: 13px; color: var(--muted); max-width: 300px; line-height: 1.5; }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px; height: 14px; margin-bottom: 10px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── MISC ── */
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .text-muted { color: var(--muted); }
+    .text-green { color: var(--green); }
+    .text-red   { color: var(--red); }
+    .text-yellow { color: var(--yellow); }
+    .view-link  { font-size: 12px; font-weight: 600; color: var(--primary); }
+
+    .section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--muted);
+      margin-bottom: 12px; margin-top: 24px;
+    }
+    .section-label:first-child { margin-top: 0; }
+  </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon">ML</div>
+      <div class="brand-name">Mandy's Laundry</div>
+    </div>
+    <div class="brand-sub">SEO Automation Platform</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" data-page="dashboard" href="#">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a class="nav-item" data-page="workers" href="#">
+      <span class="nav-icon">🤖</span> AI Workers
+    </a>
+    <a class="nav-item" data-page="schedule" href="#">
+      <span class="nav-icon">⏰</span> Schedule
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Content</div>
+    <a class="nav-item" data-page="pages" href="#">
+      <span class="nav-icon">📝</span> Blog Posts
+    </a>
+    <a class="nav-item" data-page="landing" href="#">
+      <span class="nav-icon">📍</span> Landing Pages
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">SEO & Analytics</div>
+    <a class="nav-item" data-page="seo" href="#">
+      <span class="nav-icon">🔍</span> SEO Audit
+      <span class="nav-tag" id="issues-badge" style="display:none">0</span>
+    </a>
+    <a class="nav-item" data-page="gsc" href="#">
+      <span class="nav-icon">📊</span> Search Console
+    </a>
+    <a class="nav-item" data-page="analytics" href="#">
+      <span class="nav-icon">📈</span> Analytics
+    </a>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" data-page="reports" href="#">
+      <span class="nav-icon">📋</span> Reports
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <span class="pulse-dot"></span>
+      All systems running
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px" id="last-refresh">Loading...</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-sub" id="page-sub">Overview of your SEO automation performance</div>
+    </div>
+    <div class="topbar-right">
+      <div class="live-badge" id="live-badge"><span class="live-dot" id="live-dot"></span> <span id="live-label">Live</span></div>
+    </div>
+  </header>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">📡</div>
+            <div>
+              <div class="card-head-title">Search Console</div>
+              <div class="card-head-sub">Last 28 days</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="gsc-summary-panel">
+          <div class="skeleton" style="width:50%"></div>
+          <div class="skeleton" style="width:70%"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">📈</div>
+            <div>
+              <div class="card-head-title">Analytics</div>
+              <div class="card-head-sub">Last 28 days</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="analytics-summary-panel">
+          <div class="skeleton" style="width:50%"></div>
+          <div class="skeleton" style="width:70%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">📊</div>
+            <div>
+              <div class="card-head-title">Weekly Content Output</div>
+              <div class="card-head-sub">Published vs indexed per day</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body"><div class="chart-wrap"><canvas id="chart-content"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">🔍</div>
+            <div>
+              <div class="card-head-title">Latest SEO Audit</div>
+              <div class="card-head-sub">Most recent scan results</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="audit-panel">
+          <div class="skeleton" style="width:60%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">⚠️</div>
+          <div>
+            <div class="card-head-title">Open SEO Issues</div>
+            <div class="card-head-sub">Issues that need attention</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Issue Type</th><th>URL</th><th>Severity</th><th>Detected</th></tr></thead>
+          <tbody id="issues-tbody"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AI WORKERS PAGE ── -->
+  <div class="page" id="page-workers">
+    <div class="page-header">
+      <h2>AI Workers</h2>
+      <p>Automated workers running in the background to power your SEO</p>
+    </div>
+    <div class="workers-grid" id="workers-grid"></div>
+
+    <div class="section-label" style="margin-top:28px">Scheduled Jobs</div>
+    <div class="card">
+      <div id="schedule-list-workers">
+        <div class="skeleton" style="margin:16px 20px;width:60%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SCHEDULE PAGE ── -->
+  <div class="page" id="page-schedule">
+    <div class="page-header">
+      <h2>Scheduled Jobs</h2>
+      <p>All automated jobs running on a cron schedule (America/Los_Angeles timezone)</p>
+    </div>
+    <div class="card">
+      <div id="schedule-list">
+        <div class="skeleton" style="margin:16px 20px;width:60%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BLOG POSTS PAGE ── -->
+  <div class="page" id="page-pages">
+    <div class="page-header">
+      <h2>Blog Posts</h2>
+      <p>AI-generated blog content published to your WordPress site</p>
+    </div>
+    <div class="kpi-grid" id="pages-kpis"></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Status</th><th>Published</th><th>Indexed</th><th>Link</th></tr></thead>
+          <tbody id="pages-tbody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LANDING PAGES PAGE ── -->
+  <div class="page" id="page-landing">
+    <div class="page-header">
+      <h2>Local Landing Pages</h2>
+      <p>City-specific landing pages optimized for local SEO</p>
+    </div>
+    <div class="kpi-grid" id="landing-kpis"></div>
+    <div class="card">
+      <div class="table-wrap" id="landing-content">
+        <div class="empty-state">
+          <div class="empty-state-icon">📍</div>
+          <div class="empty-state-title">Loading landing pages...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEO AUDIT PAGE ── -->
+  <div class="page" id="page-seo">
+    <div class="page-header">
+      <h2>SEO Audit</h2>
+      <p>Real-time scan of your site for SEO issues and opportunities</p>
+    </div>
+    <div class="kpi-grid" id="seo-kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">⚠️</div>
+          <div>
+            <div class="card-head-title">All Open Issues</div>
+            <div class="card-head-sub">Sorted by severity</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Issue Type</th><th>URL</th><th>Severity</th><th>Status</th><th>Detected</th></tr></thead>
+          <tbody id="seo-issues-tbody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEARCH CONSOLE PAGE ── -->
+  <div class="page" id="page-gsc">
+    <div class="page-header">
+      <h2>Google Search Console</h2>
+      <p>Search performance data from Google Search Console</p>
+    </div>
+    <div class="kpi-grid" id="gsc-kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">📊</div>
+          <div>
+            <div class="card-head-title">Impressions & Clicks</div>
+            <div class="card-head-sub">Last 14 days</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chart-gsc"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ── ANALYTICS PAGE ── -->
+  <div class="page" id="page-analytics">
+    <div class="page-header">
+      <h2>Google Analytics (GA4)</h2>
+      <p>Traffic and conversion data from Google Analytics</p>
+    </div>
+    <div class="kpi-grid" id="analytics-kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">📈</div>
+          <div>
+            <div class="card-head-title">Traffic Overview</div>
+            <div class="card-head-sub">28-day performance summary</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" id="analytics-detail">
+        <div class="skeleton" style="width:60%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REPORTS PAGE ── -->
+  <div class="page" id="page-reports">
+    <div class="page-header">
+      <h2>Reports</h2>
+      <p>Daily and weekly performance reports generated automatically</p>
+    </div>
+    <div id="reports-list">
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">Loading reports...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const IS_STATIC = window.location.hostname.endsWith('github.io');
+
+const PAGE_SUBS = {
+  dashboard: 'Overview of your SEO automation performance',
+  workers: 'Automated AI workers running in the background',
+  schedule: 'All cron jobs and their schedules',
+  pages: 'AI-generated blog posts published to WordPress',
+  landing: 'City-specific pages for local SEO',
+  seo: 'Real-time SEO issue detection and fixes',
+  gsc: 'Google Search Console performance data',
+  analytics: 'Google Analytics traffic and conversions',
+  reports: 'Daily and weekly automated reports',
+};
+
+let dashData = null, trendData = [], seoIssues = [], reports = [], gscTrend = [];
+let contentChart = null, gscChart = null;
+
+if (IS_STATIC) {
+  document.getElementById('live-dot').style.animation = 'none';
+  document.getElementById('live-label').textContent = 'Daily Updates';
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-item[data-page]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    const page = el.dataset.page;
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${page}`)?.classList.add('active');
+    const label = el.querySelector('.nav-icon').nextSibling.textContent.trim();
+    document.getElementById('page-title').textContent = label;
+    document.getElementById('page-sub').textContent = PAGE_SUBS[page] || '';
+  });
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+async function fetchJSON(url) { const r = await fetch(url); return r.json(); }
+
+function fmtNum(n) {
+  if (n == null || n === '') return '—';
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (isNaN(num)) return n;
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return String(num);
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  try {
+    return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch { return s; }
+}
+
+function badge(cls, text) {
+  return `<span class="badge badge-${cls}">${text}</span>`;
+}
+
+function severityBadge(s) {
+  const m = { critical:'badge-critical', high:'badge-high', medium:'badge-medium', low:'badge-low' };
+  return `<span class="badge ${m[s]||'badge-low'}">${s||'?'}</span>`;
+}
+
+function statusBadge(s) {
+  const m = { open:'badge-open', resolved:'badge-resolved', running:'badge-green' };
+  return `<span class="badge ${m[s]||'badge-gray'}">${s||'—'}</span>`;
+}
+
+// ── KPI card builder ──────────────────────────────────────────────────────────
+function kpiCard({ icon, label, value, sub, pill, color }) {
+  return `
+    <div class="kpi-card ${color||''}">
+      <div class="kpi-icon">${icon}</div>
+      <div class="kpi-label">${label}</div>
+      <div class="kpi-value">${value}</div>
+      ${sub ? `<div class="kpi-sub">${sub}</div>` : ''}
+      ${pill ? `<div class="kpi-pill ${pill.color}">${pill.text}</div>` : ''}
+    </div>`;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function renderDashboard(d) {
+  const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
+
+  document.getElementById('kpi-grid').innerHTML = [
+    { icon:'📄', label:'Total Pages', value: fmtNum(ov.total_pages), sub:'All time', color:'' },
+    { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:`${fmtNum(ov.pages_indexed_today)} indexed`, color:'green' },
+    { icon:'📍', label:'Landing Pages', value: fmtNum(ov.landing_pages_published), sub:`of ${fmtNum(ov.landing_pages_total)} total`, color:'' },
+    { icon:'⏳', label:'Job Queue', value: fmtNum(ov.queue_length), sub:`${fmtNum(ov.failed_jobs)} failed`,
+      pill: ov.failed_jobs > 0 ? {text:`${ov.failed_jobs} failed`,color:'red'} : null, color: ov.failed_jobs > 0 ? 'red' : '' },
+    { icon:'⚠️', label:'SEO Issues', value: fmtNum(ov.seo_issues_open), sub:'Open issues',
+      pill: ov.seo_issues_open > 0 ? {text:'Needs review',color:'yellow'} : {text:'All clear ✓',color:'green'},
+      color: ov.seo_issues_open > 0 ? 'yellow' : 'green' },
+    { icon:'👁️', label:'Impressions', value: fmtNum(gsc.impressions), sub:gsc.date_range||'28 days', color:'' },
+    { icon:'🖱️', label:'GSC Clicks', value: fmtNum(gsc.clicks), sub:`CTR: ${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}`, color:'purple' },
+    { icon:'📈', label:'Sessions', value: fmtNum(an.sessions), sub:`${fmtNum(an.organic_sessions)} organic`, color:'' },
+    { icon:'🎯', label:'Conversions', value: fmtNum(an.conversions), sub:`Bounce: ${an.bounce_rate ? an.bounce_rate+'%' : '—'}`, color:'green' },
+    { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), sub:`${fmtNum(au.issues_found)} issues found`, color:'' },
+    { icon:'🔧', label:'Auto-Fixed', value: fmtNum(au.issues_fixed), sub:'This audit',
+      pill: au.issues_fixed > 0 ? {text:'Applied',color:'green'} : null, color:'' },
+    { icon:'🏆', label:'Avg Position', value: gsc.avg_position||'—', sub:'Google SERP', color:'' },
+  ].map(kpiCard).join('');
+
+  document.getElementById('gsc-summary-panel').innerHTML = gsc.impressions != null ? `
+    <div class="metric-grid">
+      <div class="metric-item"><div class="metric-label">Impressions</div><div class="metric-val">${fmtNum(gsc.impressions)}</div></div>
+      <div class="metric-item"><div class="metric-label">Clicks</div><div class="metric-val">${fmtNum(gsc.clicks)}</div></div>
+      <div class="metric-item"><div class="metric-label">Avg CTR</div><div class="metric-val">${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}</div></div>
+      <div class="metric-item"><div class="metric-label">Avg Position</div><div class="metric-val">${gsc.avg_position||'—'}</div></div>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:14px">Last synced: ${fmtDate(gsc.synced_at)}</div>
+  ` : `<div class="empty-state" style="padding:24px 0">
+    <div class="empty-state-icon" style="font-size:28px">📡</div>
+    <div class="empty-state-title">Not connected yet</div>
+    <div class="empty-state-text">Set GOOGLE_REFRESH_TOKEN in your .env to sync Search Console data</div>
+  </div>`;
+
+  const an2 = d.analytics || {};
+  document.getElementById('analytics-summary-panel').innerHTML = an2.sessions != null ? `
+    <div class="metric-grid">
+      <div class="metric-item"><div class="metric-label">Sessions</div><div class="metric-val">${fmtNum(an2.sessions)}</div></div>
+      <div class="metric-item"><div class="metric-label">Users</div><div class="metric-val">${fmtNum(an2.users)}</div></div>
+      <div class="metric-item"><div class="metric-label">Organic</div><div class="metric-val">${fmtNum(an2.organic_sessions)}</div></div>
+      <div class="metric-item"><div class="metric-label">Conversions</div><div class="metric-val">${fmtNum(an2.conversions)}</div></div>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:14px">Bounce: ${an2.bounce_rate ? an2.bounce_rate+'%' : '—'} · Avg Session: ${an2.avg_session_duration ? an2.avg_session_duration+'s' : '—'}</div>
+  ` : `<div class="empty-state" style="padding:24px 0">
+    <div class="empty-state-icon" style="font-size:28px">📈</div>
+    <div class="empty-state-title">Not connected yet</div>
+    <div class="empty-state-text">Set GOOGLE_GA4_PROPERTY_ID in your .env to sync Analytics data</div>
+  </div>`;
+
+  document.getElementById('audit-panel').innerHTML = au.pages_audited ? `
+    <div class="stat-row"><span class="stat-label">Pages Scanned</span><span class="stat-value">${fmtNum(au.pages_audited)}</span></div>
+    <div class="stat-row"><span class="stat-label">Issues Found</span><span class="stat-value" style="color:${au.issues_found > 0 ? 'var(--yellow)' : 'var(--green)'}">${fmtNum(au.issues_found)}</span></div>
+    <div class="stat-row"><span class="stat-label">Auto-Fixed</span><span class="stat-value" style="color:var(--green)">${fmtNum(au.issues_fixed)}</span></div>
+    <div class="stat-row"><span class="stat-label">Last Run</span><span class="stat-value">${fmtDate(au.completed_at)}</span></div>
+  ` : `<div class="empty-state" style="padding:20px 0">
+    <div class="empty-state-icon" style="font-size:28px">🔍</div>
+    <div class="empty-state-title">No audit run yet</div>
+    <div class="empty-state-text">Audit runs every Monday at 3 AM</div>
+  </div>`;
+
+  const issueCount = ov.seo_issues_open || 0;
+  const issueBadge = document.getElementById('issues-badge');
+  issueBadge.textContent = issueCount;
+  issueBadge.style.display = issueCount > 0 ? '' : 'none';
+}
+
+// ── Issues Table ──────────────────────────────────────────────────────────────
+function renderIssuesTable(issues, tbodyId, cols) {
+  const tbody = document.getElementById(tbodyId);
+  if (!issues || issues.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--muted)">🎉 No open SEO issues — your site is clean!</td></tr>`;
+    return;
+  }
+  const open = issues.filter(i => i.status === 'open');
+  tbody.innerHTML = open.slice(0, 25).map((i, n) => `
+    <tr>
+      ${cols >= 6 ? `<td style="color:var(--muted);font-weight:600">${n+1}</td>` : ''}
+      <td><code style="font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text2)">${i.type||'—'}</code></td>
+      <td class="truncate" title="${i.url||''}">
+        ${i.url ? `<a href="${i.url}" target="_blank" class="view-link">${i.url.replace(/^https?:\/\/[^\/]+/, '')||'/'}</a>` : '<span class="text-muted">—</span>'}
+      </td>
+      ${severityBadge ? `<td>${severityBadge(i.severity)}</td>` : ''}
+      ${cols >= 6 ? `<td>${statusBadge(i.status)}</td>` : ''}
+      <td class="text-muted">${fmtDate(i.detected_at)}</td>
+    </tr>`).join('');
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+function renderContentChart(trend) {
+  const labels = trend.map(d => d.date?.slice(5)).reverse();
+  const published = trend.map(d => d.pages_published || 0).reverse();
+  const indexed = trend.map(d => d.pages_indexed || 0).reverse();
+  if (contentChart) contentChart.destroy();
+  contentChart = new Chart(document.getElementById('chart-content').getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Published', data: published, backgroundColor: 'rgba(37,99,235,.65)', borderRadius: 5 },
+      { label: 'Indexed',   data: indexed,   backgroundColor: 'rgba(5,150,105,.45)', borderRadius: 5 },
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+        y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+      },
+    },
+  });
+}
+
+function renderGSCChart(trend) {
+  if (!trend || !trend.length) return;
+  const labels = trend.map(d => d.date?.slice(5)).reverse();
+  const imp = trend.map(d => d.impressions || 0).reverse();
+  const clicks = trend.map(d => d.clicks || 0).reverse();
+  if (gscChart) gscChart.destroy();
+  const ctx = document.getElementById('chart-gsc');
+  if (!ctx) return;
+  gscChart = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Impressions', data: imp, borderColor: 'rgba(37,99,235,.8)', backgroundColor: 'rgba(37,99,235,.07)', fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: '#2563eb' },
+      { label: 'Clicks', data: clicks, borderColor: 'rgba(5,150,105,.8)', backgroundColor: 'rgba(5,150,105,.07)', fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: '#059669' },
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+        y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+      },
+    },
+  });
+}
+
+// ── Workers ───────────────────────────────────────────────────────────────────
+function renderWorkers(data) {
+  const defs = [
+    { name:'Content Worker',    desc:'Blog posts & landing pages', icon:'📝', key:'content' },
+    { name:'SEO Worker',        desc:'Audit & auto-fix issues',     icon:'🔍', key:'seo' },
+    { name:'Analytics Worker',  desc:'GSC & GA4 data sync',         icon:'📊', key:'analytics' },
+    { name:'Monitoring Worker', desc:'Uptime & health checks',       icon:'🛡️', key:'monitoring' },
+    { name:'Publishing Worker', desc:'WordPress REST API',           icon:'🚀', key:'queue' },
+    { name:'Indexing Worker',   desc:'Google Indexing API',          icon:'📤', key:'queue' },
+  ];
+  document.getElementById('workers-grid').innerHTML = defs.map(w => {
+    const status = IS_STATIC ? 'running via GitHub Actions' : (data?.workers?.[w.key] || 'running');
+    const dotCls = '';
+    return `
+      <div class="worker-card">
+        <div class="worker-icon">${w.icon}</div>
+        <div class="worker-name">${w.name}</div>
+        <div class="worker-desc">${w.desc}</div>
+        <div class="worker-status-row">
+          <span class="w-dot ${dotCls}"></span>
+          ${statusBadge('running')}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Schedule ──────────────────────────────────────────────────────────────────
+function renderSchedule(jobs, containerId) {
+  const el = document.getElementById(containerId);
+  if (IS_STATIC) {
+    el.innerHTML = [
+      { name: 'Morning Report',    cron: '0 14 * * *   (6 AM PST)' },
+      { name: 'Content Generation', cron: '5 14 * * *   (6:05 AM PST)' },
+      { name: 'Weekly SEO Audit',  cron: '0 11 * * 1   (Mon 3 AM PST)' },
+    ].map(j => `
+      <div class="schedule-row">
+        <div>
+          <div class="schedule-name">${j.name}</div>
+          <div class="schedule-cron">${j.cron}</div>
+        </div>
+        <span class="schedule-badge">Active</span>
+      </div>`).join('');
+    return;
+  }
+  if (!jobs || !jobs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-title">No scheduled jobs</div></div>';
+    return;
+  }
+  el.innerHTML = jobs.map(j => `
+    <div class="schedule-row">
+      <div>
+        <div class="schedule-name">${j.name}</div>
+        <div class="schedule-cron">${j.cronExpr}</div>
+      </div>
+      <span class="schedule-badge">Active</span>
+    </div>`).join('');
+}
+
+// ── Blog Posts ────────────────────────────────────────────────────────────────
+function renderPages(list) {
+  const count = { indexed:0, published:0, content_generating:0 };
+  list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
+  const liveCount = (count.published||0) + (count.indexed||0);
+
+  document.getElementById('pages-kpis').innerHTML = [
+    { icon:'📝', label:'Total Posts',  value: list.length, color:'' },
+    { icon:'🚀', label:'Published',    value: liveCount, color:'green' },
+    { icon:'🔍', label:'Indexed by Google', value: count.indexed||0, color:'' },
+    { icon:'⏳', label:'Generating',   value: count.content_generating||0, color:'yellow' },
+  ].map(kpiCard).join('');
+
+  const statusMap   = { indexed:'green', published:'blue', content_generating:'yellow', publish_failed:'red', index_failed:'red', generation_failed:'red' };
+  const statusLabel = { indexed:'Published ✓ Indexed', published:'Published', content_generating:'Generating', publish_failed:'Publish Failed', index_failed:'Index Failed', generation_failed:'Generation Failed' };
+  document.getElementById('pages-tbody').innerHTML = list.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No blog posts yet — they will appear after the first scheduled run</td></tr>'
+    : list.map(p => `
+      <tr>
+        <td class="truncate" title="${p.title}" style="font-weight:500;color:var(--text)">${p.title}</td>
+        <td>${badge(statusMap[p.status]||'gray', statusLabel[p.status] || p.status.replace(/_/g,' '))}</td>
+        <td class="text-muted">${fmtDate(p.published_at)}</td>
+        <td class="text-muted">${fmtDate(p.indexed_at)}</td>
+        <td>${p.url ? `<a href="${p.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
+      </tr>`).join('');
+}
+
+// ── Landing Pages ─────────────────────────────────────────────────────────────
+function renderLandingPages(list) {
+  const count = { indexed:0, published:0, generating:0, pending:0 };
+  list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
+  const liveCount = (count.published||0) + (count.indexed||0);
+
+  document.getElementById('landing-kpis').innerHTML = [
+    { icon:'📍', label:'Total Pages', value: list.length, color:'' },
+    { icon:'🚀', label:'Published',   value: liveCount, color:'green' },
+    { icon:'🔍', label:'Indexed by Google', value: count.indexed||0, color:'' },
+    { icon:'⏳', label:'Generating',  value: (count.generating||0)+(count.pending||0), color:'yellow' },
+  ].map(kpiCard).join('');
+
+  const statusMap   = { indexed:'green', published:'blue', generating:'yellow', pending:'gray', skipped_duplicate:'gray', generation_failed:'red' };
+  const statusLabel = { indexed:'Published ✓ Indexed', published:'Published', generating:'Generating', pending:'Pending', skipped_duplicate:'Duplicate', generation_failed:'Failed' };
+
+  if (!list.length) {
+    document.getElementById('landing-content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📍</div>
+        <div class="empty-state-title">No landing pages yet</div>
+        <div class="empty-state-text">Landing pages will be generated daily at 6:05 AM PST</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('landing-content').innerHTML = `
+    <table>
+      <thead><tr><th>Page</th><th>Service Type</th><th>SEO Score</th><th>Status</th><th>Published</th><th>Link</th></tr></thead>
+      <tbody>
+        ${list.map(lp => `
+          <tr>
+            <td style="font-weight:600;color:var(--text)">${lp.city ? `${lp.city}${lp.state ? ', '+lp.state : ''}` : (lp.title||lp.slug||'—')}</td>
+            <td class="text-muted">${lp.service_type||'—'}</td>
+            <td>
+              ${lp.seo_score != null
+                ? `<span style="font-weight:700;color:${lp.seo_score>=80?'var(--green)':lp.seo_score>=60?'var(--yellow)':'var(--red)'}">${lp.seo_score}<span style="font-size:11px;font-weight:400;color:var(--muted)">/100</span></span>`
+                : '<span class="text-muted">—</span>'}
+            </td>
+            <td>${badge(statusMap[lp.status]||'gray', statusLabel[lp.status] || lp.status.replace(/_/g,' '))}</td>
+            <td class="text-muted">${fmtDate(lp.published_at)}</td>
+            <td>${lp.url ? `<a href="${lp.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── Analytics Detail ──────────────────────────────────────────────────────────
+function renderAnalyticsDetail(an) {
+  document.getElementById('analytics-detail').innerHTML = an.sessions != null ? `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px">
+      ${[
+        ['Sessions',       fmtNum(an.sessions)],
+        ['Users',          fmtNum(an.users)],
+        ['Organic Sessions', fmtNum(an.organic_sessions)],
+        ['Conversions',    fmtNum(an.conversions)],
+        ['Bounce Rate',    an.bounce_rate ? an.bounce_rate+'%' : '—'],
+        ['Avg Session',    an.avg_session_duration ? an.avg_session_duration+'s' : '—'],
+      ].map(([l,v]) => `
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${l}</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text)">${v}</div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">Last synced: ${fmtDate(an.synced_at)} · 28-day window</div>
+  ` : `<div class="empty-state">
+    <div class="empty-state-icon">📈</div>
+    <div class="empty-state-title">Not connected yet</div>
+    <div class="empty-state-text">Set GOOGLE_GA4_PROPERTY_ID in your .env to sync Analytics data</div>
+  </div>`;
+}
+
+// ── Reports ───────────────────────────────────────────────────────────────────
+function renderReports(reps) {
+  if (!reps || !reps.length) {
+    document.getElementById('reports-list').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">No reports yet</div>
+        <div class="empty-state-text">Daily reports are sent at 6 AM and weekly reports every Monday at 3 AM</div>
+      </div>`;
+    return;
+  }
+  document.getElementById('reports-list').innerHTML = reps.map(r => {
+    const s = r.summary || {};
+    const typeIcon = r.type === 'weekly' ? '📋' : '📊';
+    const typeLabel = r.type === 'weekly' ? 'Weekly Report' : 'Daily Report';
+    return `
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">${typeIcon}</div>
+            <div>
+              <div class="card-head-title">${r.title || typeLabel}</div>
+              <div class="card-head-sub">${fmtDate(r.generated_at)}</div>
+            </div>
+          </div>
+          ${badge(r.type==='weekly'?'purple':'blue', typeLabel)}
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px">
+            ${[
+              s.pagesPublished  != null ? ['Published',    s.pagesPublished,  'var(--text)']   : null,
+              s.pagesIndexed    != null ? ['Indexed',      s.pagesIndexed,    'var(--text)']   : null,
+              s.seoIssuesOpen   != null ? ['SEO Issues',   s.seoIssuesOpen,   'var(--yellow)'] : null,
+              s.gscImpressions  != null ? ['Impressions',  fmtNum(s.gscImpressions), 'var(--text)'] : null,
+              s.analyticsSessions != null ? ['Sessions',   fmtNum(s.analyticsSessions), 'var(--text)'] : null,
+            ].filter(Boolean).map(([l,v,c]) => `
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">${l}</div>
+                <div style="font-size:20px;font-weight:800;color:${c}">${v}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Load All ──────────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    let dash, trend, issues, reps, gTrend, pages, landingPages;
+
+    if (IS_STATIC) {
+      let data;
+      try {
+        data = await fetchJSON('data.json');
+      } catch (e) {
+        document.getElementById('last-refresh').textContent = 'No data yet — first update runs at 6 AM PST';
+        return;
+      }
+      dash         = { status: 'fulfilled', value: data.dashboard || {} };
+      trend        = { status: 'fulfilled', value: data.trend || [] };
+      issues       = { status: 'fulfilled', value: data.seo_issues || [] };
+      reps         = { status: 'fulfilled', value: data.reports || [] };
+      gTrend       = { status: 'fulfilled', value: data.gsc_trend || [] };
+      pages        = { status: 'fulfilled', value: data.pages || [] };
+      landingPages = { status: 'fulfilled', value: data.landing_pages || [] };
+
+      const ts = data.generated_at ? fmtDate(data.generated_at) : 'today';
+      document.getElementById('last-refresh').textContent = `Data as of ${ts} · updates daily at 6 AM PST`;
+    } else {
+      [dash, trend, issues, reps, gTrend, pages, landingPages] = await Promise.allSettled([
+        fetchJSON('/api/dashboard'),
+        fetchJSON('/api/trend'),
+        fetchJSON('/api/seo-issues'),
+        fetchJSON('/api/reports'),
+        fetchJSON('/api/gsc-trend'),
+        fetchJSON('/api/pages'),
+        fetchJSON('/api/landing-pages/list'),
+      ]);
+      const now = new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      document.getElementById('last-refresh').textContent = `Updated ${now}`;
+    }
+
+    if (dash.status === 'fulfilled') {
+      dashData = dash.value;
+      renderDashboard(dashData);
+      renderWorkers(dashData);
+      if (dashData.scheduler) {
+        renderSchedule(dashData.scheduler, 'schedule-list');
+        renderSchedule(dashData.scheduler, 'schedule-list-workers');
+      } else {
+        renderSchedule(null, 'schedule-list');
+        renderSchedule(null, 'schedule-list-workers');
+      }
+
+      const an = dashData.analytics || {};
+      document.getElementById('analytics-kpis').innerHTML = [
+        { icon:'📊', label:'Sessions (28d)',    value: fmtNum(an.sessions), color:'' },
+        { icon:'👥', label:'Users (28d)',        value: fmtNum(an.users), color:'' },
+        { icon:'🌱', label:'Organic Sessions',  value: fmtNum(an.organic_sessions), color:'green' },
+        { icon:'🎯', label:'Conversions',       value: fmtNum(an.conversions), color:'green' },
+        { icon:'↩️', label:'Bounce Rate',       value: an.bounce_rate ? an.bounce_rate+'%' : '—', color:'' },
+        { icon:'⏱',  label:'Avg Session',       value: an.avg_session_duration ? an.avg_session_duration+'s' : '—', color:'' },
+      ].map(kpiCard).join('');
+
+      const gsc = dashData.gsc || {};
+      document.getElementById('gsc-kpis').innerHTML = [
+        { icon:'👁️', label:'Impressions (28d)', value: fmtNum(gsc.impressions), color:'' },
+        { icon:'🖱️', label:'Clicks (28d)',      value: fmtNum(gsc.clicks), color:'' },
+        { icon:'📊', label:'Avg CTR',           value: gsc.avg_ctr ? gsc.avg_ctr+'%' : '—', color:'' },
+        { icon:'🏆', label:'Avg Position',      value: gsc.avg_position||'—', color:'' },
+      ].map(kpiCard).join('');
+
+      const ov = dashData.overview || {}, au = dashData.audit || {};
+      document.getElementById('seo-kpis').innerHTML = [
+        { icon:'⚠️', label:'Open Issues',    value: fmtNum(ov.seo_issues_open), color: ov.seo_issues_open > 0 ? 'yellow' : 'green' },
+        { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), color:'' },
+        { icon:'🐛', label:'Issues Found',  value: fmtNum(au.issues_found), color: au.issues_found > 0 ? 'red' : 'green' },
+        { icon:'🔧', label:'Auto-Fixed',    value: fmtNum(au.issues_fixed), color: au.issues_fixed > 0 ? 'green' : '' },
+      ].map(kpiCard).join('');
+
+      renderAnalyticsDetail(dashData.analytics || {});
+    }
+
+    if (trend.status === 'fulfilled' && Array.isArray(trend.value)) renderContentChart(trend.value);
+    if (issues.status === 'fulfilled' && Array.isArray(issues.value)) {
+      seoIssues = issues.value;
+      renderIssuesTable(seoIssues, 'issues-tbody', 4);
+      renderIssuesTable(seoIssues, 'seo-issues-tbody', 6);
+    }
+    if (reps.status === 'fulfilled' && Array.isArray(reps.value)) renderReports(reps.value);
+    if (gTrend.status === 'fulfilled' && Array.isArray(gTrend.value)) renderGSCChart(gTrend.value);
+    if (pages.status === 'fulfilled' && Array.isArray(pages.value)) renderPages(pages.value);
+    if (landingPages.status === 'fulfilled' && Array.isArray(landingPages.value)) renderLandingPages(landingPages.value);
+
+  } catch (err) {
+    console.error('Dashboard error:', err);
+  }
+}
+
+loadAll();
+if (!IS_STATIC) setInterval(loadAll, 30000);
+</script>
+</body>
+</html>

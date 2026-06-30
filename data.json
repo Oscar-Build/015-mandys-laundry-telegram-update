@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-06-30T00:00:00.000Z",
+  "dashboard": {
+    "overview": {
+      "total_pages": 0,
+      "pages_published_today": 0,
+      "pages_indexed_today": 0,
+      "failed_jobs": 0,
+      "queue_length": 0,
+      "seo_issues_open": 0,
+      "landing_pages_total": 0,
+      "landing_pages_published": 0
+    },
+    "gsc": {},
+    "analytics": {},
+    "audit": {},
+    "workers": {
+      "content": "running",
+      "seo": "running",
+      "analytics": "running",
+      "monitoring": "running",
+      "queue": "running"
+    },
+    "scheduler": null
+  },
+  "trend": [],
+  "seo_issues": [],
+  "reports": [],
+  "gsc_trend": [],
+  "pages": [],
+  "landing_pages": []
+}
