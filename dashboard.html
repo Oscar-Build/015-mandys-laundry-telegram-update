@@ -940,21 +940,23 @@ function renderSchedule(jobs, containerId) {
 function renderPages(list) {
   const count = { indexed:0, published:0, content_generating:0 };
   list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
+  const liveCount = (count.published||0) + (count.indexed||0);
 
   document.getElementById('pages-kpis').innerHTML = [
     { icon:'📝', label:'Total Posts',  value: list.length, color:'' },
-    { icon:'✅', label:'Indexed',      value: count.indexed||0, color:'green' },
-    { icon:'🚀', label:'Published',    value: count.published||0, color:'' },
+    { icon:'🚀', label:'Published',    value: liveCount, color:'green' },
+    { icon:'🔍', label:'Indexed by Google', value: count.indexed||0, color:'' },
     { icon:'⏳', label:'Generating',   value: count.content_generating||0, color:'yellow' },
   ].map(kpiCard).join('');
 
   const statusMap = { indexed:'green', published:'blue', content_generating:'yellow', publish_failed:'red', index_failed:'red', generation_failed:'red' };
+  const statusLabel = { indexed:'Published ✓ Indexed', published:'Published', content_generating:'Generating', publish_failed:'Publish Failed', index_failed:'Index Failed', generation_failed:'Generation Failed' };
   document.getElementById('pages-tbody').innerHTML = list.length === 0
     ? '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No blog posts yet — they will appear after the first scheduled run</td></tr>'
     : list.map(p => `
       <tr>
         <td class="truncate" title="${p.title}" style="font-weight:500;color:var(--text)">${p.title}</td>
-        <td>${badge(statusMap[p.status]||'gray', p.status.replace(/_/g,' '))}</td>
+        <td>${badge(statusMap[p.status]||'gray', statusLabel[p.status] || p.status.replace(/_/g,' '))}</td>
         <td class="text-muted">${fmtDate(p.published_at)}</td>
         <td class="text-muted">${fmtDate(p.indexed_at)}</td>
         <td>${p.url ? `<a href="${p.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
@@ -965,15 +967,17 @@ function renderPages(list) {
 function renderLandingPages(list) {
   const count = { indexed:0, published:0, generating:0, pending:0 };
   list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
+  const liveCount = (count.published||0) + (count.indexed||0);
 
   document.getElementById('landing-kpis').innerHTML = [
     { icon:'📍', label:'Total Pages', value: list.length, color:'' },
-    { icon:'✅', label:'Indexed',     value: count.indexed||0, color:'green' },
-    { icon:'🚀', label:'Published',   value: count.published||0, color:'' },
+    { icon:'🚀', label:'Published',   value: liveCount, color:'green' },
+    { icon:'🔍', label:'Indexed by Google', value: count.indexed||0, color:'' },
     { icon:'⏳', label:'Generating',  value: (count.generating||0)+(count.pending||0), color:'yellow' },
   ].map(kpiCard).join('');
 
   const statusMap = { indexed:'green', published:'blue', generating:'yellow', pending:'gray', skipped_duplicate:'gray', generation_failed:'red' };
+  const statusLabel = { indexed:'Published ✓ Indexed', published:'Published', generating:'Generating', pending:'Pending', skipped_duplicate:'Duplicate', generation_failed:'Failed' };
 
   if (!list.length) {
     document.getElementById('landing-content').innerHTML = `
@@ -998,7 +1002,7 @@ function renderLandingPages(list) {
                 ? `<span style="font-weight:700;color:${lp.seo_score>=80?'var(--green)':lp.seo_score>=60?'var(--yellow)':'var(--red)'}">${lp.seo_score}<span style="font-size:11px;font-weight:400;color:var(--muted)">/100</span></span>`
                 : '<span class="text-muted">—</span>'}
             </td>
-            <td>${badge(statusMap[lp.status]||'gray', lp.status.replace(/_/g,' '))}</td>
+            <td>${badge(statusMap[lp.status]||'gray', statusLabel[lp.status] || lp.status.replace(/_/g,' '))}</td>
             <td class="text-muted">${fmtDate(lp.published_at)}</td>
             <td>${lp.url ? `<a href="${lp.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
           </tr>`).join('')}
