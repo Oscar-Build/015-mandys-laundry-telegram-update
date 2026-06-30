@@ -566,8 +566,8 @@
     <div class="card">
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Title</th><th>Status</th><th>Published</th><th>Indexed</th><th>Link</th></tr></thead>
-          <tbody id="pages-tbody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+          <thead><tr><th>Title</th><th>Status</th><th>Published</th><th>Link</th></tr></thead>
+          <tbody id="pages-tbody"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -956,27 +956,26 @@ function renderSchedule(jobs, containerId) {
 
 // ── Blog Posts ────────────────────────────────────────────────────────────────
 function renderPages(list) {
-  const count = { indexed:0, published:0, content_generating:0 };
-  list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
-  const liveCount = (count.published||0) + (count.indexed||0);
+  const today = new Date().toISOString().slice(0, 10);
+  const publishedToday = list.filter(p => p.published_at && p.published_at.slice(0, 10) === today).length;
+  const generating = list.filter(p => p.status === 'content_generating').length;
 
   document.getElementById('pages-kpis').innerHTML = [
-    { icon:'📝', label:'Total Posts',  value: list.length, color:'' },
-    { icon:'🚀', label:'Published',    value: liveCount, color:'green' },
-    { icon:'🔍', label:'Indexed by Google', value: count.indexed||0, color:'' },
-    { icon:'⏳', label:'Generating',   value: count.content_generating||0, color:'yellow' },
+    { icon:'📝', label:'Total Posts (All Time)', value: list.length, color:'' },
+    { icon:'✅', label:'Published Today',         value: publishedToday, color: publishedToday > 0 ? 'green' : '', sub: 'New posts this cycle' },
+    { icon:'⏳', label:'Generating',              value: generating, color: generating > 0 ? 'yellow' : '' },
   ].map(kpiCard).join('');
 
   const statusMap   = { indexed:'green', published:'blue', content_generating:'yellow', publish_failed:'red', index_failed:'red', generation_failed:'red' };
-  const statusLabel = { indexed:'Published ✓ Indexed', published:'Published', content_generating:'Generating', publish_failed:'Publish Failed', index_failed:'Index Failed', generation_failed:'Generation Failed' };
-  document.getElementById('pages-tbody').innerHTML = list.length === 0
-    ? '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No blog posts yet — they will appear after the first scheduled run</td></tr>'
-    : list.map(p => `
+  const statusLabel = { indexed:'Published ✓', published:'Published', content_generating:'Generating', publish_failed:'Publish Failed', index_failed:'Index Failed', generation_failed:'Generation Failed' };
+  const recent = list.slice(0, 20);
+  document.getElementById('pages-tbody').innerHTML = recent.length === 0
+    ? '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--muted)">No blog posts yet — they will appear after the first scheduled run</td></tr>'
+    : recent.map(p => `
       <tr>
         <td class="truncate" title="${p.title}" style="font-weight:500;color:var(--text)">${p.title}</td>
         <td>${badge(statusMap[p.status]||'gray', statusLabel[p.status] || p.status.replace(/_/g,' '))}</td>
         <td class="text-muted">${fmtDate(p.published_at)}</td>
-        <td class="text-muted">${fmtDate(p.indexed_at)}</td>
         <td>${p.url ? `<a href="${p.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
       </tr>`).join('');
 }
