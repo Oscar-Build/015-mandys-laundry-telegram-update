@@ -154,13 +154,73 @@ async function fetchGSC() {
   }
 }
 
+async function fetchGA4() {
+  const clientId     = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+  const propertyId   = process.env.GOOGLE_GA4_PROPERTY_ID;
+  if (!clientId || !refreshToken || !propertyId) return null;
+
+  try {
+    const { google } = require('googleapis');
+    const auth = new google.auth.OAuth2(clientId, clientSecret, 'urn:ietf:wg:oauth:2.0:oob');
+    auth.setCredentials({ refresh_token: refreshToken });
+    const analyticsdata = google.analyticsdata({ version: 'v1beta', auth });
+
+    const [trafficRes, organicRes] = await Promise.all([
+      analyticsdata.properties.runReport({
+        property: `properties/${propertyId}`,
+        requestBody: {
+          dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+          metrics: [
+            { name: 'sessions' },
+            { name: 'activeUsers' },
+            { name: 'newUsers' },
+            { name: 'bounceRate' },
+            { name: 'averageSessionDuration' },
+            { name: 'conversions' },
+          ],
+        },
+      }),
+      analyticsdata.properties.runReport({
+        property: `properties/${propertyId}`,
+        requestBody: {
+          dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
+          dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+          metrics: [{ name: 'sessions' }],
+        },
+      }),
+    ]);
+
+    const row = trafficRes.data.rows?.[0]?.metricValues || [];
+    const organicRow = (organicRes.data.rows || []).find(r =>
+      r.dimensionValues?.[0]?.value?.toLowerCase().includes('organic')
+    );
+
+    return {
+      sessions:             Math.round(parseFloat(row[0]?.value || 0)),
+      users:                Math.round(parseFloat(row[1]?.value || 0)),
+      new_users:            Math.round(parseFloat(row[2]?.value || 0)),
+      bounce_rate:          row[3]?.value ? (parseFloat(row[3].value) * 100).toFixed(1) : null,
+      avg_session_duration: row[4]?.value ? Math.round(parseFloat(row[4].value)) : null,
+      conversions:          Math.round(parseFloat(row[5]?.value || 0)),
+      organic_sessions:     organicRow ? Math.round(parseFloat(organicRow.metricValues?.[0]?.value || 0)) : null,
+      synced_at:            new Date().toISOString(),
+    };
+  } catch (err) {
+    console.warn('GA4 fetch failed:', err.message);
+    return null;
+  }
+}
+
 async function main() {
   console.log('Generating data.json for GitHub Pages dashboard...');
 
-  const [posts, pages, gscResult] = await Promise.all([
+  const [posts, pages, gscResult, ga4] = await Promise.all([
     fetchWPPosts(),
     fetchWPPages(),
     fetchGSC(),
+    fetchGA4(),
   ]);
 
   const gsc = gscResult?.summary || null;
@@ -169,13 +229,13 @@ async function main() {
     generated_at: new Date().toISOString(),
     dashboard: {
       overview: {
-        total_pages:            posts.length,
-        pages_published_today:  0,
-        pages_indexed_today:    0,
-        failed_jobs:            0,
-        queue_length:           0,
-        seo_issues_open:        0,
-        landing_pages_total:    pages.length,
+        total_pages:             posts.length,
+        pages_published_today:   0,
+        pages_indexed_today:     0,
+        failed_jobs:             0,
+        queue_length:            0,
+        seo_issues_open:         0,
+        landing_pages_total:     pages.length,
         landing_pages_published: pages.length,
       },
       gsc: gsc ? {
@@ -186,16 +246,16 @@ async function main() {
         date_range:   '28 days',
         synced_at:    gsc.synced_at,
       } : {},
-      analytics: {},
+      analytics: ga4 || {},
       audit: {},
       workers: { content: 'running', seo: 'running', analytics: 'running', monitoring: 'running', queue: 'running' },
       scheduler: null,
     },
-    trend:        [],
-    seo_issues:   [],
-    reports:      [],
-    gsc_trend:    gscResult?.trend || [],
-    pages:        posts,
+    trend:         [],
+    seo_issues:    [],
+    reports:       [],
+    gsc_trend:     gscResult?.trend || [],
+    pages:         posts,
     landing_pages: pages,
   };
 
@@ -207,6 +267,11 @@ async function main() {
     console.log(`  GSC impressions: ${gsc.impressions}  clicks: ${gsc.clicks}  CTR: ${gsc.avg_ctr}%`);
   } else {
     console.log('  GSC: not connected');
+  }
+  if (ga4) {
+    console.log(`  GA4 sessions: ${ga4.sessions}  users: ${ga4.users}  organic: ${ga4.organic_sessions}`);
+  } else {
+    console.log('  GA4: not connected');
   }
 }
 
