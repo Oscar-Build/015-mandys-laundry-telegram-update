@@ -1,5 +1,7 @@
 node_modules/
 .env
+.env.local
+new-refresh-token.txt
 start-hidden.vbs
 data/*.db
 data/*.db-shm

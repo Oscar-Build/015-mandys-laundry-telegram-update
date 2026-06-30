@@ -109,7 +109,7 @@ async function fetchGSC() {
 
   try {
     const { google } = require('googleapis');
-    const auth = new google.auth.OAuth2(clientId, clientSecret, 'urn:ietf:wg:oauth:2.0:oob');
+    const auth = new google.auth.OAuth2(clientId, clientSecret);
     auth.setCredentials({ refresh_token: refreshToken });
     const sc  = google.searchconsole({ version: 'v1', auth });
     const end   = new Date().toISOString().slice(0, 10);
@@ -163,7 +163,7 @@ async function fetchGA4() {
 
   try {
     const { google } = require('googleapis');
-    const auth = new google.auth.OAuth2(clientId, clientSecret, 'urn:ietf:wg:oauth:2.0:oob');
+    const auth = new google.auth.OAuth2(clientId, clientSecret);
     auth.setCredentials({ refresh_token: refreshToken });
     const analyticsdata = google.analyticsdata({ version: 'v1beta', auth });
 
