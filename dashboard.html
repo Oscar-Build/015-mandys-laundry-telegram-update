@@ -964,43 +964,38 @@ function renderPages(list) {
 
 // ── Landing Pages ─────────────────────────────────────────────────────────────
 function renderLandingPages(list) {
-  const count = { indexed:0, published:0, generating:0, pending:0 };
-  list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
-  const liveCount = (count.published||0) + (count.indexed||0);
+  const today = new Date().toISOString().slice(0, 10);
+  const publishedToday = list.filter(p => p.published_at && p.published_at.slice(0, 10) === today).length;
+  const generating = list.filter(p => p.status === 'generating' || p.status === 'pending').length;
 
   document.getElementById('landing-kpis').innerHTML = [
-    { icon:'📍', label:'Total Pages', value: list.length, color:'' },
-    { icon:'🚀', label:'Published',   value: liveCount, color:'green' },
-    { icon:'🔍', label:'Indexed by Google', value: count.indexed||0, color:'' },
-    { icon:'⏳', label:'Generating',  value: (count.generating||0)+(count.pending||0), color:'yellow' },
+    { icon:'📍', label:'Total Pages (All Time)', value: list.length, color:'' },
+    { icon:'✅', label:'Published Today',         value: publishedToday, color: publishedToday > 0 ? 'green' : '', sub: 'New pages this cycle' },
+    { icon:'⏳', label:'Generating',              value: generating, color: generating > 0 ? 'yellow' : '' },
   ].map(kpiCard).join('');
 
-  const statusMap = { indexed:'green', published:'blue', generating:'yellow', pending:'gray', skipped_duplicate:'gray', generation_failed:'red' };
-  const statusLabel = { indexed:'Published ✓ Indexed', published:'Published', generating:'Generating', pending:'Pending', skipped_duplicate:'Duplicate', generation_failed:'Failed' };
+  const statusMap   = { indexed:'green', published:'blue', generating:'yellow', pending:'gray', skipped_duplicate:'gray', generation_failed:'red' };
+  const statusLabel = { indexed:'Published ✓', published:'Published', generating:'Generating', pending:'Pending', skipped_duplicate:'Duplicate', generation_failed:'Failed' };
 
   if (!list.length) {
     document.getElementById('landing-content').innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">📍</div>
         <div class="empty-state-title">No landing pages yet</div>
-        <div class="empty-state-text">Landing pages will be generated daily at 6:30 AM for your target cities and services</div>
+        <div class="empty-state-text">Landing pages will be generated daily at 6:05 AM PST</div>
       </div>`;
     return;
   }
 
+  const recent = list.slice(0, 20);
   document.getElementById('landing-content').innerHTML = `
     <table>
-      <thead><tr><th>City</th><th>Service Type</th><th>SEO Score</th><th>Status</th><th>Published</th><th>Link</th></tr></thead>
+      <thead><tr><th>Page</th><th>Service Type</th><th>Status</th><th>Published</th><th>Link</th></tr></thead>
       <tbody>
-        ${list.map(lp => `
+        ${recent.map(lp => `
           <tr>
-            <td style="font-weight:600;color:var(--text)">${lp.city}, ${lp.state}</td>
-            <td class="text-muted">${lp.service_type}</td>
-            <td>
-              ${lp.seo_score != null
-                ? `<span style="font-weight:700;color:${lp.seo_score>=80?'var(--green)':lp.seo_score>=60?'var(--yellow)':'var(--red)'}">${lp.seo_score}<span style="font-size:11px;font-weight:400;color:var(--muted)">/100</span></span>`
-                : '<span class="text-muted">—</span>'}
-            </td>
+            <td style="font-weight:600;color:var(--text)">${lp.city ? `${lp.city}${lp.state ? ', '+lp.state : ''}` : (lp.title||lp.slug||'—')}</td>
+            <td class="text-muted">${lp.service_type||'—'}</td>
             <td>${badge(statusMap[lp.status]||'gray', statusLabel[lp.status] || lp.status.replace(/_/g,' '))}</td>
             <td class="text-muted">${fmtDate(lp.published_at)}</td>
             <td>${lp.url ? `<a href="${lp.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
