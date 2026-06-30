@@ -938,13 +938,18 @@ function renderSchedule(jobs, containerId) {
 
 // ── Blog Posts ────────────────────────────────────────────────────────────────
 function renderPages(list) {
-  const today = new Date().toISOString().slice(0, 10);
-  const publishedToday = list.filter(p => p.published_at && p.published_at.slice(0, 10) === today).length;
   const generating = list.filter(p => p.status === 'content_generating').length;
+  const withDate = list.filter(p => p.published_at).sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+  let latestBatch = 0, latestLabel = '—';
+  if (withDate.length) {
+    const newestTime = new Date(withDate[0].published_at).getTime();
+    latestBatch = withDate.filter(p => newestTime - new Date(p.published_at).getTime() < 60 * 60 * 1000).length;
+    latestLabel = new Date(withDate[0].published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
 
   document.getElementById('pages-kpis').innerHTML = [
     { icon:'📝', label:'Total Posts (All Time)', value: list.length, color:'' },
-    { icon:'✅', label:'Published Today',         value: publishedToday, color: publishedToday > 0 ? 'green' : '', sub: 'New posts this cycle' },
+    { icon:'✅', label:'Latest Batch',            value: latestBatch, color: latestBatch > 0 ? 'green' : '', sub: latestBatch > 0 ? `Published ${latestLabel}` : 'No posts yet' },
     { icon:'⏳', label:'Generating',              value: generating, color: generating > 0 ? 'yellow' : '' },
   ].map(kpiCard).join('');
 
@@ -964,13 +969,18 @@ function renderPages(list) {
 
 // ── Landing Pages ─────────────────────────────────────────────────────────────
 function renderLandingPages(list) {
-  const today = new Date().toISOString().slice(0, 10);
-  const publishedToday = list.filter(p => p.published_at && p.published_at.slice(0, 10) === today).length;
   const generating = list.filter(p => p.status === 'generating' || p.status === 'pending').length;
+  const withDate = list.filter(p => p.published_at).sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+  let latestBatch = 0, latestLabel = '—';
+  if (withDate.length) {
+    const newestTime = new Date(withDate[0].published_at).getTime();
+    latestBatch = withDate.filter(p => newestTime - new Date(p.published_at).getTime() < 60 * 60 * 1000).length;
+    latestLabel = new Date(withDate[0].published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
 
   document.getElementById('landing-kpis').innerHTML = [
     { icon:'📍', label:'Total Pages (All Time)', value: list.length, color:'' },
-    { icon:'✅', label:'Published Today',         value: publishedToday, color: publishedToday > 0 ? 'green' : '', sub: 'New pages this cycle' },
+    { icon:'✅', label:'Latest Batch',            value: latestBatch, color: latestBatch > 0 ? 'green' : '', sub: latestBatch > 0 ? `Published ${latestLabel}` : 'No pages yet' },
     { icon:'⏳', label:'Generating',              value: generating, color: generating > 0 ? 'yellow' : '' },
   ].map(kpiCard).join('');
 
