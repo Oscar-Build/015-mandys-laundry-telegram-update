@@ -35,7 +35,7 @@ Return ONLY a JSON object with these exact keys:
   "metaTitle": "Meta title (55-60 chars, include primary keyword and city)",
   "metaDescription": "Compelling meta description (145-155 chars, include CTA and city)",
   "h1": "Page H1 headline with city and service (compelling, keyword-rich)",
-  "content": "Full HTML page content (900-1200 words). Use <h2>, <h3>, <p>, <ul>, <strong> tags. Mention ${city} naturally 4-6 times. Cover: what we offer, why choose us, our process, service areas near ${city}, testimonials section placeholder.",
+  "content": "Full HTML page content (1200-1800 words). Use <h2>, <h3>, <p>, <ul>, <strong> tags. Mention ${city} naturally 5-8 times. Cover: what we offer, why choose us, our process, benefits, pricing overview, service areas near ${city}, customer testimonials section placeholder, and a clear call to action.",
   "faqs": [
     {"question": "FAQ about ${serviceType} in ${city}?", "answer": "Detailed helpful answer."},
     {"question": "How much does ${serviceType} cost in ${city}?", "answer": "Pricing answer."},
@@ -60,7 +60,7 @@ Return ONLY a JSON object with these exact keys:
 
   const message = await c.messages.create({
     model: config.anthropic.model,
-    max_tokens: 3500,
+    max_tokens: 6000,
     messages: [{ role: 'user', content: prompt }],
   });
 

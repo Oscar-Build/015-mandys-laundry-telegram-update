@@ -78,7 +78,7 @@ const config = {
 
   seo: {
     auditMaxPages: parseInt(optional('SEO_AUDIT_MAX_PAGES', '50'), 10),
-    thinContentThreshold: parseInt(optional('SEO_THIN_CONTENT_WORDS', '300'), 10),
+    thinContentThreshold: parseInt(optional('SEO_THIN_CONTENT_WORDS', '800'), 10),
     targetCities: optional('SEO_TARGET_CITIES', 'Los Angeles,San Diego,Anaheim,Long Beach,Santa Ana')
       .split(',').map(c => c.trim()).filter(Boolean),
     targetServices: optional('SEO_TARGET_SERVICES', 'laundry pickup,dry cleaning,wash and fold,commercial laundry')

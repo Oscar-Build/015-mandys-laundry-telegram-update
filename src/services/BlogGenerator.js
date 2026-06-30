@@ -43,7 +43,7 @@ Return ONLY a JSON object with these exact keys:
     {"level": "h2", "text": "Why choose Mandy's Laundry heading"},
     {"level": "h2", "text": "Conclusion heading"}
   ],
-  "content": "Full HTML blog post (900-1200 words). Use <h2>, <h3>, <p>, <ul>, <ol>, <strong>, <em> tags. Naturally include the primary keyword 3-5 times. Write in a friendly, helpful tone for homeowners.",
+  "content": "Full HTML blog post (1200-1800 words). Use <h2>, <h3>, <p>, <ul>, <ol>, <strong>, <em> tags. Naturally include the primary keyword 4-6 times. Write in a friendly, helpful, in-depth tone for homeowners. Cover the topic thoroughly with actionable tips, examples, and details.",
   "internalLinks": [
     {"text": "wash and fold service", "href": "/wash-and-fold"},
     {"text": "dry cleaning near you", "href": "/dry-cleaning"},
@@ -59,7 +59,7 @@ Return ONLY a JSON object with these exact keys:
 
   const message = await c.messages.create({
     model: config.anthropic.model,
-    max_tokens: 3500,
+    max_tokens: 6000,
     messages: [{ role: 'user', content: prompt }],
   });
 
