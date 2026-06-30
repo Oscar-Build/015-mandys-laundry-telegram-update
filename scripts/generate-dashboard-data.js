@@ -15,6 +15,16 @@ const axios = require('axios');
 const WP_API  = process.env.WORDPRESS_API_URL;
 const WP_USER = process.env.WORDPRESS_USERNAME;
 const WP_PASS = process.env.WORDPRESS_APP_PASSWORD;
+
+// Refresh an OAuth2 token using axios (avoids undici "Premature close" on Node 22)
+async function getAccessToken(clientId, clientSecret, refreshToken) {
+  const res = await axios.post(
+    'https://oauth2.googleapis.com/token',
+    new URLSearchParams({ client_id: clientId, client_secret: clientSecret, refresh_token: refreshToken, grant_type: 'refresh_token' }).toString(),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, timeout: 15000 }
+  );
+  return res.data.access_token;
+}
 const WP_AUTH = WP_USER && WP_PASS
   ? 'Basic ' + Buffer.from(`${WP_USER}:${WP_PASS}`).toString('base64')
   : null;
@@ -109,8 +119,9 @@ async function fetchGSC() {
 
   try {
     const { google } = require('googleapis');
+    const accessToken = await getAccessToken(clientId, clientSecret, refreshToken);
     const auth = new google.auth.OAuth2(clientId, clientSecret);
-    auth.setCredentials({ refresh_token: refreshToken });
+    auth.setCredentials({ access_token: accessToken });
     const sc  = google.searchconsole({ version: 'v1', auth });
     const end   = new Date().toISOString().slice(0, 10);
     const start = new Date(Date.now() - 28 * 86400000).toISOString().slice(0, 10);
@@ -163,8 +174,9 @@ async function fetchGA4() {
 
   try {
     const { google } = require('googleapis');
+    const accessToken = await getAccessToken(clientId, clientSecret, refreshToken);
     const auth = new google.auth.OAuth2(clientId, clientSecret);
-    auth.setCredentials({ refresh_token: refreshToken });
+    auth.setCredentials({ access_token: accessToken });
     const analyticsdata = google.analyticsdata({ version: 'v1beta', auth });
 
     const [trafficRes, organicRes] = await Promise.all([
