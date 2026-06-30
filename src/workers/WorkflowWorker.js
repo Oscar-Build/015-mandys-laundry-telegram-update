@@ -3,15 +3,14 @@
 const db = require('../services/Database');
 const logger = require('../services/Logger');
 const telegram = require('../services/TelegramService');
-const { runContentWorkflow } = require('../workflows/ContentWorkflow');
+const { runBlogWorkflow, runLandingPageWorkflow } = require('./ContentWorker');
+const { runAudit, autoFixIssues, checkBrokenLinks } = require('./SEOWorker');
+const { syncAll } = require('./AnalyticsWorker');
+const { runAllMonitoringChecks } = require('./MonitoringWorker');
 
 let running = false;
 let intervalHandle;
 
-/**
- * Processes pending jobs from the queue.
- * Designed to be called on an interval (e.g., every 30 seconds).
- */
 async function processPendingJobs() {
   if (running) {
     logger.debug('Worker already processing, skipping tick');
@@ -24,7 +23,6 @@ async function processPendingJobs() {
     if (jobs.length === 0) return;
 
     logger.info(`Processing ${jobs.length} pending jobs`);
-
     for (const job of jobs) {
       await processJob(job);
     }
@@ -44,8 +42,38 @@ async function processJob(job) {
 
     switch (job.type) {
       case 'generate_and_publish':
-        await runContentWorkflow(payload.topic || 'Laundry Tips');
+        await runBlogWorkflow(payload.topic || 'Laundry Tips & Tricks');
         break;
+
+      case 'generate_landing_page':
+        await runLandingPageWorkflow({
+          city: payload.city || 'Los Angeles',
+          state: payload.state || 'CA',
+          keyword: payload.keyword || 'laundry service',
+          serviceType: payload.serviceType || 'laundry service',
+        });
+        break;
+
+      case 'seo_audit':
+        await runAudit();
+        break;
+
+      case 'seo_auto_fix':
+        await autoFixIssues();
+        break;
+
+      case 'check_broken_links':
+        await checkBrokenLinks();
+        break;
+
+      case 'sync_analytics':
+        await syncAll();
+        break;
+
+      case 'monitoring_check':
+        await runAllMonitoringChecks();
+        break;
+
       default:
         logger.warn('Unknown job type', { type: job.type, jobId: job.id });
     }
@@ -53,7 +81,7 @@ async function processJob(job) {
     db.updateJob(job.id, { status: 'completed', completed_at: new Date().toISOString() });
     logger.info('Job completed', { jobId: job.id, type: job.type });
   } catch (err) {
-    logger.error('Job failed', { jobId: job.id, error: err.message });
+    logger.error('Job failed', { jobId: job.id, type: job.type, error: err.message });
     db.updateJob(job.id, { status: 'failed', last_error: err.message });
   }
 }

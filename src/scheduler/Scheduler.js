@@ -6,7 +6,12 @@ const logger = require('../services/Logger');
 
 const dailySummaryJob = require('./jobs/dailySummary');
 const healthCheckJob = require('./jobs/healthCheck');
-const { runBatch } = require('../workflows/ContentWorkflow');
+const tenMinuteCheckJob = require('./jobs/tenMinuteCheck');
+const hourlyCheckJob = require('./jobs/hourlyCheck');
+const analyticsSyncJob = require('./jobs/analyticsSync');
+const weeklyAuditJob = require('./jobs/weeklyAudit');
+const { runBlogBatch } = require('../workers/ContentWorker');
+const { runLandingPageBatch } = require('../workers/ContentWorker');
 
 const registeredTasks = [];
 
@@ -34,9 +39,29 @@ function schedule(name, cronExpr, fn) {
 function start() {
   logger.info('Starting scheduler...');
 
-  schedule('Daily Summary', config.cron.dailySummary, () => dailySummaryJob.run());
+  // ── Every 5 minutes: health checks ──────────────────────────────────────────
   schedule('Health Check', config.cron.healthCheck, () => healthCheckJob.run());
-  schedule('Content Generation', config.cron.contentGen, () => runBatch());
+
+  // ── Every 10 minutes: queue + worker health ──────────────────────────────────
+  schedule('10-Min Check', config.cron.tenMinuteCheck, () => tenMinuteCheckJob.run());
+
+  // ── Every hour: uptime + indexing retries ────────────────────────────────────
+  schedule('Hourly Check', config.cron.hourlyCheck, () => hourlyCheckJob.run());
+
+  // ── Daily 6:00 AM: generate blog posts ──────────────────────────────────────
+  schedule('Blog Content Generation', config.cron.contentGen, () => runBlogBatch());
+
+  // ── Daily 6:30 AM: generate local landing pages ─────────────────────────────
+  schedule('Landing Page Generation', config.cron.landingPageGen, () => runLandingPageBatch());
+
+  // ── Daily 7:00 AM: sync GSC + GA4 + send daily report ───────────────────────
+  schedule('Analytics Sync', config.cron.analyticsSync, () => analyticsSyncJob.run());
+
+  // ── Daily 8:00 AM: send daily summary to Telegram ───────────────────────────
+  schedule('Daily Summary', config.cron.dailySummary, () => dailySummaryJob.run());
+
+  // ── Every Monday 3:00 AM: full site audit + weekly report ───────────────────
+  schedule('Weekly Audit', config.cron.weeklyAudit, () => weeklyAuditJob.run());
 
   registeredTasks.forEach(({ task }) => task.start());
 
@@ -54,4 +79,8 @@ function stop() {
   logger.info('Scheduler stopped');
 }
 
-module.exports = { start, stop };
+function getStatus() {
+  return registeredTasks.map(t => ({ name: t.name, cronExpr: t.cronExpr }));
+}
+
+module.exports = { start, stop, getStatus };
