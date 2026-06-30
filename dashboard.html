@@ -3,699 +3,1151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Oscar Auto — Mandy's Laundry SEO</title>
+  <title>Mandy's Laundry — SEO Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface2: #f1f5f9;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text2: #334155;
+      --muted: #94a3b8;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --yellow: #d97706;
+      --yellow-light: #fffbeb;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --sidebar: 240px;
+      --radius: 10px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 6px rgba(0,0,0,.07), 0 2px 4px rgba(0,0,0,.04);
+    }
+
     body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      font-weight: 500;
-      background: #f2f3fb;
-      color: #1e1e3a;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       min-height: 100vh;
-      font-size: 13.5px;
+      font-size: 14px;
+      line-height: 1.6;
     }
 
-    /* ── SIDEBAR ─────────────────────────────── */
+    /* ── SIDEBAR ── */
     .sidebar {
-      width: 230px;
-      min-width: 230px;
-      background: #fff;
-      border-right: 1px solid #ebebf5;
-      display: flex;
-      flex-direction: column;
+      width: var(--sidebar);
+      min-width: var(--sidebar);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
       height: 100vh;
       position: fixed;
-      left: 0; top: 0;
+      top: 0; left: 0;
+      display: flex;
+      flex-direction: column;
       overflow-y: auto;
-      z-index: 100;
+      z-index: 50;
     }
 
-    .sidebar-logo {
+    .sidebar-header {
+      padding: 20px 16px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .brand {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 20px 18px 16px;
-      border-bottom: 1px solid #f0f0fa;
+      margin-bottom: 4px;
     }
-
-    .logo-icon {
-      width: 34px; height: 34px;
-      background: linear-gradient(135deg, #7c3aed, #ec4899);
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
       border-radius: 10px;
       display: flex; align-items: center; justify-content: center;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 900;
-      letter-spacing: -1px;
+      font-size: 16px; font-weight: 800; color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(37,99,235,.3);
     }
+    .brand-name { font-size: 15px; font-weight: 700; color: var(--text); }
+    .brand-sub  { font-size: 11px; color: var(--muted); margin-left: 46px; margin-top: -2px; }
 
-    .logo-text { font-size: 15px; font-weight: 700; color: #1e1e3a; line-height: 1.1; }
-    .logo-sub  { font-size: 10px; color: #8888aa; font-weight: 500; }
-
-    .nav-section { padding: 14px 10px 6px; }
-    .nav-label   { font-size: 9.5px; color: #b0b0cc; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 0 8px 8px; }
-
+    .nav-section { padding: 8px 8px 0; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--muted);
+      padding: 8px 8px 4px;
+    }
     .nav-item {
       display: flex; align-items: center; gap: 10px;
-      padding: 9px 12px;
-      border-radius: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
       cursor: pointer;
-      color: #6668aa;
-      font-size: 12.5px;
-      font-weight: 500;
+      color: var(--text2);
+      font-size: 13.5px; font-weight: 500;
       margin-bottom: 2px;
-      transition: all .15s;
+      transition: background .12s, color .12s;
+      text-decoration: none;
     }
-    .nav-item:hover       { background: #f5f3ff; color: #7c3aed; }
-    .nav-item.active      { background: linear-gradient(135deg,#ede9fe,#fce7f3); color: #7c3aed; font-weight: 600; }
-    .nav-item .nav-icon   { width: 18px; text-align: center; font-size: 15px; }
-    .nav-item .badge      { margin-left: auto; background: #ec4899; color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 1px 7px; }
-    .nav-item .badge.gray { background: #e8e8f5; color: #7c7caa; }
+    .nav-item:hover { background: var(--surface2); color: var(--text); }
+    .nav-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .nav-icon { font-size: 16px; width: 20px; text-align: center; flex-shrink: 0; }
+    .nav-tag {
+      margin-left: auto;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 20px;
+      background: var(--red); color: #fff;
+    }
+    .nav-tag.green { background: var(--green); }
+    .nav-tag.gray  { background: var(--surface2); color: var(--muted); }
 
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 14px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .system-status {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text2);
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes pulse { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(5,150,105,.3); } 50% { opacity:.8; box-shadow:0 0 0 4px rgba(5,150,105,0); } }
 
-    /* ── MAIN LAYOUT ─────────────────────────── */
+    /* ── MAIN ── */
     .main {
-      margin-left: 230px;
+      margin-left: var(--sidebar);
       flex: 1;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
     }
 
-    /* ── TOP BAR ─────────────────────────────── */
     .topbar {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(242,243,251,.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid #ebebf5;
-      display: flex; align-items: center; gap: 12px;
-      padding: 10px 24px;
-    }
-
-    .topbar-back { width: 30px; height: 30px; border: 1.5px solid #e0e0f0; border-radius: 8px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #888; font-size: 13px; }
-
-    .search-bar {
-      display: flex; align-items: center; gap: 8px;
-      background: #fff;
-      border: 1.5px solid #e8e8f5;
-      border-radius: 10px;
-      padding: 7px 14px;
-      flex: 1; max-width: 320px;
-      color: #aaa; font-size: 13px;
-    }
-    .search-bar input { border: none; outline: none; background: none; color: #444; flex: 1; font-size: 13px; }
-    .search-kbd { font-size: 10px; color: #bbb; background: #f5f5fa; border-radius: 4px; padding: 1px 5px; font-weight: 600; }
-
-    .topbar-btn {
-      display: flex; align-items: center; gap: 6px;
-      background: #fff; border: 1.5px solid #e8e8f5;
-      border-radius: 10px; padding: 7px 14px;
-      font-size: 13px; font-weight: 500; color: #555;
-      cursor: pointer;
-    }
-    .topbar-btn:hover { border-color: #c4b5fd; color: #7c3aed; }
-
-    .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-    .icon-btn { width: 34px; height: 34px; border: 1.5px solid #e8e8f5; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #666; font-size: 15px; position: relative; }
-    .icon-btn .dot { position: absolute; top: 6px; right: 6px; width: 7px; height: 7px; background: #ec4899; border-radius: 50%; border: 1.5px solid #fff; }
-
-    .upgrade-btn {
-      display: flex; align-items: center; gap: 6px;
-      background: linear-gradient(135deg,#7c3aed,#ec4899);
-      color: #fff; border: none; border-radius: 10px;
-      padding: 8px 16px; font-size: 13px; font-weight: 600;
-      cursor: pointer; white-space: nowrap;
-    }
-
-    .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#7c3aed,#ec4899); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
-
-    /* ── PAGE CONTENT ────────────────────────── */
-    .content { padding: 24px; flex: 1; }
-
-    .breadcrumb { display: flex; align-items: center; gap: 6px; color: #aaa; font-size: 12px; margin-bottom: 16px; }
-    .breadcrumb span.sep { color: #ddd; }
-    .breadcrumb span.current { color: #7c3aed; font-weight: 600; }
-
-    /* ── HERO BANNER ─────────────────────────── */
-    .hero {
-      background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 40%, #db2777 100%);
-      border-radius: 20px;
-      padding: 28px 32px;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      overflow: hidden;
-      position: relative;
-      margin-bottom: 22px;
-      min-height: 148px;
-    }
-
-    .hero-bg-circle {
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255,255,255,.06);
-    }
-    .hero-bg-circle.c1 { width: 200px; height: 200px; top: -80px; right: 320px; }
-    .hero-bg-circle.c2 { width: 140px; height: 140px; bottom: -50px; right: 240px; }
-
-    .hero-left h1 { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-    .hero-left p  { font-size: 13px; opacity: .85; margin-bottom: 18px; }
-    .hero-btns    { display: flex; gap: 10px; }
-
-    .hero-btn {
-      display: flex; align-items: center; gap: 7px;
-      background: rgba(255,255,255,.18);
-      border: 1.5px solid rgba(255,255,255,.3);
-      border-radius: 10px;
-      color: #fff; font-size: 13px; font-weight: 600;
-      padding: 9px 16px; cursor: pointer;
-      backdrop-filter: blur(6px);
-      transition: background .15s;
-    }
-    .hero-btn:hover { background: rgba(255,255,255,.28); }
-    .hero-btn-icon { font-size: 16px; }
-
-    .hero-right {
-      display: flex; gap: 10px;
-      position: relative; z-index: 1;
-    }
-    .hero-img {
-      width: 100px; height: 92px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: rgba(255,255,255,.12);
-      display: flex; align-items: center; justify-content: center;
-      border: 1.5px solid rgba(255,255,255,.2);
-    }
-    .hero-img-inner { font-size: 42px; }
-    .hero-img.small { width: 100px; height: 42px; }
-    .hero-img.small .hero-img-inner { font-size: 22px; }
-    .hero-imgs-col { display: flex; flex-direction: column; gap: 8px; }
-
-    /* ── DATE HEADER ─────────────────────────── */
-    .date-export {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 16px;
+      padding: 16px 28px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 40;
     }
-    .date-label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #777; }
-    .date-label strong { color: #1e1e3a; }
-    .export-btn { display: flex; align-items: center; gap: 6px; background: #fff; border: 1.5px solid #e8e8f5; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 500; color: #555; cursor: pointer; }
-
-    /* ── STAT CARDS ──────────────────────────── */
-    .cards-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
-
-    .stat-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.04);
-      border: 1px solid #f0f0fa;
-    }
-    .stat-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .stat-icon {
-      width: 40px; height: 40px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-    }
-    .stat-icon.purple { background: linear-gradient(135deg,#ede9fe,#fce7f3); }
-    .stat-icon.green  { background: linear-gradient(135deg,#dcfce7,#d1fae5); }
-    .stat-icon.blue   { background: linear-gradient(135deg,#dbeafe,#ede9fe); }
-    .stat-icon.orange { background: linear-gradient(135deg,#ffedd5,#fef3c7); }
-
-    .stat-badge { display: flex; align-items: center; gap: 3px; background: #dcfce7; color: #16a34a; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 3px 8px; }
-    .stat-badge.down { background: #fee2e2; color: #dc2626; }
-
-    .stat-label { font-size: 12px; color: #9999bb; font-weight: 500; margin-bottom: 4px; }
-    .stat-value { font-size: 24px; font-weight: 800; color: #1e1e3a; }
-
-    /* ── BOTTOM GRID ─────────────────────────── */
-    .bottom-grid { display: grid; grid-template-columns: 1fr 1.9fr; gap: 18px; }
-
-    /* ── DB STORAGE CARD ─────────────────────── */
-    .db-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.04);
-      border: 1px solid #f0f0fa;
-    }
-    .card-title { font-size: 14px; font-weight: 700; color: #1e1e3a; margin-bottom: 16px; display: flex; align-items: center; gap: 7px; }
-    .card-title .ct-icon { font-size: 16px; }
-
-    .db-donut-wrap { display: flex; align-items: center; justify-content: center; position: relative; margin: 6px auto 16px; width: 130px; height: 130px; }
-    .db-donut-center { position: absolute; text-align: center; }
-    .db-donut-pct   { font-size: 22px; font-weight: 800; color: #1e1e3a; line-height: 1; }
-    .db-donut-sub   { font-size: 10px; color: #9999bb; font-weight: 500; }
-
-    .db-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .db-stat  { background: #f8f8fd; border-radius: 10px; padding: 10px 12px; }
-    .db-stat-label { font-size: 10px; color: #aaa; font-weight: 500; margin-bottom: 3px; }
-    .db-stat-val   { font-size: 14px; font-weight: 700; color: #1e1e3a; }
-
-    .db-bar-row { margin-bottom: 10px; }
-    .db-bar-header { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 4px; }
-    .db-bar-bg { height: 7px; background: #f0f0fa; border-radius: 4px; overflow: hidden; }
-    .db-bar-fill { height: 100%; border-radius: 4px; }
-    .db-bar-fill.purple { background: linear-gradient(90deg,#7c3aed,#a855f7); }
-    .db-bar-fill.pink   { background: linear-gradient(90deg,#ec4899,#f472b6); }
-    .db-bar-fill.blue   { background: linear-gradient(90deg,#3b82f6,#60a5fa); }
-
-    /* ── CHART CARD ──────────────────────────── */
-    .chart-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.04);
-      border: 1px solid #f0f0fa;
-    }
-    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .chart-title  { font-size: 14px; font-weight: 700; color: #1e1e3a; }
-    .chart-legend { display: flex; gap: 14px; }
-    .legend-item  { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #888; font-weight: 500; }
-    .legend-dot   { width: 8px; height: 8px; border-radius: 50%; }
-
-    .spending-overview {
-      display: flex; align-items: center; gap: 10px;
-      margin-bottom: 14px;
-    }
-    .spending-label { font-size: 12px; color: #999; }
-    .spending-value { font-size: 18px; font-weight: 800; color: #1e1e3a; }
-    .spending-badge { display: flex; align-items: center; gap: 3px; background: #dcfce7; color: #16a34a; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 3px 8px; }
-
-    .chart-period {
+    .topbar-left { display: flex; flex-direction: column; }
+    .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .topbar-sub   { font-size: 12px; color: var(--muted); margin-top: 1px; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .live-badge {
       display: flex; align-items: center; gap: 6px;
-      background: #f8f8fd; border-radius: 8px; padding: 6px 12px;
-      font-size: 12px; font-weight: 500; color: #555; cursor: pointer;
+      font-size: 12px; font-weight: 600; color: var(--green);
+      background: var(--green-light);
+      border: 1px solid #a7f3d0;
+      padding: 5px 12px; border-radius: 20px;
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+    #last-refresh { font-size: 12px; color: var(--muted); }
+
+    /* ── PAGES ── */
+    .page { padding: 28px; display: none; max-width: 1400px; }
+    .page.active { display: block; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 20px; font-weight: 700; color: var(--text); }
+    .page-header p  { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+    /* ── KPI CARDS ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px 16px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: box-shadow .15s, transform .15s;
+    }
+    .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--primary);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .kpi-card.green::before  { background: var(--green); }
+    .kpi-card.yellow::before { background: var(--yellow); }
+    .kpi-card.red::before    { background: var(--red); }
+    .kpi-card.purple::before { background: var(--purple); }
+    .kpi-icon { font-size: 20px; margin-bottom: 10px; }
+    .kpi-label { font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+    .kpi-value { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1.1; }
+    .kpi-sub   { font-size: 12px; color: var(--muted); margin-top: 5px; }
+    .kpi-pill  {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+      margin-top: 8px;
+    }
+    .kpi-pill.green  { background: var(--green-light);  color: var(--green); }
+    .kpi-pill.red    { background: var(--red-light);    color: var(--red); }
+    .kpi-pill.yellow { background: var(--yellow-light); color: var(--yellow); }
+    .kpi-pill.blue   { background: var(--primary-light); color: var(--primary); }
+
+    /* ── GRID LAYOUTS ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 22px; }
+    @media (max-width: 960px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-head-left { display: flex; align-items: center; gap: 10px; }
+    .card-head-icon {
+      width: 32px; height: 32px;
+      background: var(--primary-light);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+    }
+    .card-head-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .card-head-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .card-body { padding: 20px; }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    thead tr { background: var(--surface2); }
+    th {
+      text-align: left; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .5px;
+      color: var(--muted); padding: 10px 16px;
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; color: var(--text2); }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: #f8fafc; }
+
+    /* ── BADGES ── */
+    .badge {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600;
+    }
+    .badge-critical { background: var(--red-light);    color: var(--red); }
+    .badge-high     { background: var(--yellow-light); color: var(--yellow); }
+    .badge-medium   { background: var(--primary-light); color: var(--primary); }
+    .badge-low      { background: var(--surface2);     color: var(--muted); }
+    .badge-open     { background: var(--yellow-light); color: var(--yellow); }
+    .badge-resolved { background: var(--green-light);  color: var(--green); }
+    .badge-running  { background: var(--green-light);  color: var(--green); }
+    .badge-green    { background: var(--green-light);  color: var(--green); }
+    .badge-blue     { background: var(--primary-light); color: var(--primary); }
+    .badge-red      { background: var(--red-light);    color: var(--red); }
+    .badge-yellow   { background: var(--yellow-light); color: var(--yellow); }
+    .badge-gray     { background: var(--surface2);     color: var(--muted); }
+
+    /* ── WORKER CARDS ── */
+    .workers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+    .worker-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .worker-icon { font-size: 28px; margin-bottom: 10px; }
+    .worker-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .worker-desc { font-size: 11.5px; color: var(--muted); margin-bottom: 10px; }
+    .worker-status-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .w-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .w-dot.yellow { background: var(--yellow); }
+    .w-dot.red    { background: var(--red); }
+
+    /* ── SCHEDULE ── */
+    .schedule-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+    }
+    .schedule-row:last-child { border-bottom: none; }
+    .schedule-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .schedule-cron { font-size: 12px; color: var(--muted); font-family: 'Courier New', monospace; margin-top: 2px; }
+    .schedule-badge {
+      font-size: 11px; font-weight: 600; padding: 4px 10px;
+      border-radius: 20px; background: var(--green-light); color: var(--green);
     }
 
-    .chart-wrap { height: 180px; }
-
-    .breakdown-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 16px; }
-    .breakdown-item { }
-    .bk-label { font-size: 11px; color: #999; margin-bottom: 5px; }
-    .bk-value { font-size: 15px; font-weight: 700; color: #1e1e3a; margin-bottom: 6px; }
-    .bk-bar-bg { height: 6px; background: #f0f0fa; border-radius: 3px; overflow: hidden; }
-    .bk-bar-fill { height: 100%; border-radius: 3px; }
-    .bk-bar-fill.v { background: linear-gradient(90deg,#7c3aed,#a855f7); }
-    .bk-bar-fill.s { background: linear-gradient(90deg,#f59e0b,#fbbf24); }
-    .bk-bar-fill.a { background: linear-gradient(90deg,#10b981,#34d399); }
-
-    /* ── RECENT ACTIVITY ─────────────────────── */
-    .activity-card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.04);
-      border: 1px solid #f0f0fa;
-      margin-top: 18px;
+    /* ── STATS ROWS (inside cards) ── */
+    .stat-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
     }
-    .activity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .view-all { font-size: 12px; color: #7c3aed; font-weight: 600; cursor: pointer; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-size: 13px; color: var(--text2); }
+    .stat-value { font-size: 14px; font-weight: 700; color: var(--text); }
 
-    table { width: 100%; border-collapse: collapse; }
-    thead th { text-align: left; font-size: 11px; color: #aaa; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; padding: 6px 10px; }
-    tbody tr { border-top: 1px solid #f5f5fa; }
-    tbody tr:hover { background: #faf9ff; }
-    tbody td { padding: 11px 10px; font-size: 12px; color: #444; }
-    tbody td strong { color: #1e1e3a; font-weight: 600; }
-
-    .status-pill { display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 3px 9px; }
-    .status-pill.indexed    { background: #dcfce7; color: #16a34a; }
-    .status-pill.published  { background: #dbeafe; color: #2563eb; }
-    .status-pill.generating { background: #fef3c7; color: #d97706; }
-    .status-pill.failed     { background: #fee2e2; color: #dc2626; }
-
-    /* ── RESPONSIVE ──────────────────────────── */
-    @media (max-width: 1100px) {
-      .cards-row { grid-template-columns: repeat(2,1fr); }
-      .bottom-grid { grid-template-columns: 1fr; }
+    /* ── METRIC GRID (inside cards) ── */
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
-    @media (max-width: 768px) {
-      .sidebar { display: none; }
-      .main { margin-left: 0; }
-      .cards-row { grid-template-columns: repeat(2,1fr); }
+    .metric-item .metric-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+    .metric-item .metric-val   { font-size: 22px; font-weight: 800; color: var(--text); }
+
+    /* ── CHARTS ── */
+    .chart-wrap { position: relative; height: 220px; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 48px 20px; text-align: center;
     }
+    .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+    .empty-state-text  { font-size: 13px; color: var(--muted); max-width: 300px; line-height: 1.5; }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px; height: 14px; margin-bottom: 10px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── MISC ── */
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 260px; }
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .text-muted { color: var(--muted); }
+    .text-green { color: var(--green); }
+    .text-red   { color: var(--red); }
+    .text-yellow { color: var(--yellow); }
+    .view-link  { font-size: 12px; font-weight: 600; color: var(--primary); }
+
+    .section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--muted);
+      margin-bottom: 12px; margin-top: 24px;
+    }
+    .section-label:first-child { margin-top: 0; }
   </style>
 </head>
 <body>
 
-<!-- ── SIDEBAR ───────────────────────────────── -->
+<!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <div class="logo-icon">M</div>
-    <div>
-      <div class="logo-text">Oscar Auto</div>
-      <div class="logo-sub">Mandy's Laundry SEO</div>
+  <div class="sidebar-header">
+    <div class="brand">
+      <div class="brand-icon">ML</div>
+      <div class="brand-name">Mandy's Laundry</div>
     </div>
+    <div class="brand-sub">SEO Automation Platform</div>
   </div>
 
   <div class="nav-section">
-    <div class="nav-label">Main</div>
-    <div class="nav-item active"><span class="nav-icon">📊</span> SEO Dashboard</div>
-    <div class="nav-item"><span class="nav-icon">📈</span> Analytics</div>
-    <div class="nav-item"><span class="nav-icon">🖥️</span> System Overview</div>
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" data-page="dashboard" href="#">
+      <span class="nav-icon">🏠</span> Dashboard
+    </a>
+    <a class="nav-item" data-page="workers" href="#">
+      <span class="nav-icon">🤖</span> AI Workers
+    </a>
+    <a class="nav-item" data-page="schedule" href="#">
+      <span class="nav-icon">⏰</span> Schedule
+    </a>
   </div>
 
   <div class="nav-section">
-    <div class="nav-label">Pipeline</div>
-    <div class="nav-item"><span class="nav-icon">✍️</span> Content Generator</div>
-    <div class="nav-item"><span class="nav-icon">🌐</span> WordPress Publisher</div>
-    <div class="nav-item"><span class="nav-icon">🔍</span> Google Indexing</div>
-    <div class="nav-item"><span class="nav-icon">⏱️</span> Scheduler</div>
+    <div class="nav-section-label">Content</div>
+    <a class="nav-item" data-page="pages" href="#">
+      <span class="nav-icon">📝</span> Blog Posts
+    </a>
+    <a class="nav-item" data-page="landing" href="#">
+      <span class="nav-icon">📍</span> Landing Pages
+    </a>
   </div>
 
   <div class="nav-section">
-    <div class="nav-label">Apps</div>
-    <div class="nav-item"><span class="nav-icon">🗂️</span> Workflows</div>
-    <div class="nav-item"><span class="nav-icon">📨</span> Telegram Bot <span class="badge">3</span></div>
-    <div class="nav-item"><span class="nav-icon">📅</span> Schedule</div>
-    <div class="nav-item"><span class="nav-icon">📄</span> Reports <span class="badge gray">2</span></div>
+    <div class="nav-section-label">SEO & Analytics</div>
+    <a class="nav-item" data-page="seo" href="#">
+      <span class="nav-icon">🔍</span> SEO Audit
+      <span class="nav-tag" id="issues-badge" style="display:none">0</span>
+    </a>
+    <a class="nav-item" data-page="gsc" href="#">
+      <span class="nav-icon">📊</span> Search Console
+    </a>
+    <a class="nav-item" data-page="analytics" href="#">
+      <span class="nav-icon">📈</span> Analytics
+    </a>
   </div>
 
-  <div class="nav-section" style="margin-top:auto">
-    <div class="nav-item"><span class="nav-icon">❤️</span> Health Monitor</div>
-    <div class="nav-item"><span class="nav-icon">⚙️</span> Settings</div>
+  <div class="nav-section">
+    <div class="nav-section-label">Reports</div>
+    <a class="nav-item" data-page="reports" href="#">
+      <span class="nav-icon">📋</span> Reports
+    </a>
   </div>
 
+  <div class="sidebar-footer">
+    <div class="system-status">
+      <span class="pulse-dot"></span>
+      All systems running
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:4px" id="last-refresh">Loading...</div>
+  </div>
 </aside>
 
-<!-- ── MAIN ──────────────────────────────────── -->
+<!-- MAIN -->
 <div class="main">
-
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="topbar-back">←</div>
-    <div class="search-bar">
-      🔍
-      <input type="text" placeholder="Search workflows or pages..." />
-      <span class="search-kbd">⌘ K</span>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-sub" id="page-sub">Overview of your SEO automation performance</div>
     </div>
-    <div class="topbar-btn">🤖 AI Studio ▾</div>
-    <div class="topbar-btn">🛠️ Pipeline Tools ▾</div>
-    <div class="topbar-actions">
-      <button class="upgrade-btn">⚡ Upgrade</button>
-      <div class="icon-btn">🌙</div>
-      <div class="icon-btn">🔔<span class="dot"></span></div>
-      <div class="icon-btn">💬<span class="dot"></span></div>
-      <div class="avatar">O</div>
+    <div class="topbar-right">
+      <div class="live-badge"><span class="live-dot"></span> Live</div>
+    </div>
+  </header>
+
+  <!-- ── DASHBOARD PAGE ── -->
+  <div class="page active" id="page-dashboard">
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">📡</div>
+            <div>
+              <div class="card-head-title">Search Console</div>
+              <div class="card-head-sub">Last 28 days</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="gsc-summary-panel">
+          <div class="skeleton" style="width:50%"></div>
+          <div class="skeleton" style="width:70%"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">📈</div>
+            <div>
+              <div class="card-head-title">Analytics</div>
+              <div class="card-head-sub">Last 28 days</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="analytics-summary-panel">
+          <div class="skeleton" style="width:50%"></div>
+          <div class="skeleton" style="width:70%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">📊</div>
+            <div>
+              <div class="card-head-title">Weekly Content Output</div>
+              <div class="card-head-sub">Published vs indexed per day</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body"><div class="chart-wrap"><canvas id="chart-content"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">🔍</div>
+            <div>
+              <div class="card-head-title">Latest SEO Audit</div>
+              <div class="card-head-sub">Most recent scan results</div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body" id="audit-panel">
+          <div class="skeleton" style="width:60%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">⚠️</div>
+          <div>
+            <div class="card-head-title">Open SEO Issues</div>
+            <div class="card-head-sub">Issues that need attention</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Issue Type</th><th>URL</th><th>Severity</th><th>Detected</th></tr></thead>
+          <tbody id="issues-tbody"><tr><td colspan="4" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- CONTENT -->
-  <div class="content">
-
-    <!-- Breadcrumb + Date -->
-    <div class="breadcrumb">
-      <span>Home</span><span class="sep">/</span><span class="current">SEO Dashboard</span>
+  <!-- ── AI WORKERS PAGE ── -->
+  <div class="page" id="page-workers">
+    <div class="page-header">
+      <h2>AI Workers</h2>
+      <p>Automated workers running in the background to power your SEO</p>
     </div>
+    <div class="workers-grid" id="workers-grid"></div>
 
-    <!-- HERO BANNER -->
-    <div class="hero">
-      <div class="hero-bg-circle c1"></div>
-      <div class="hero-bg-circle c2"></div>
-      <div class="hero-left">
-        <h1>Welcome, Oscar! 👋</h1>
-        <p>Automate. Publish. Rank. — Mandy's Laundry SEO Engine</p>
-        <div class="hero-btns">
-          <button class="hero-btn"><span class="hero-btn-icon">✍️</span> Generate Content</button>
-          <button class="hero-btn"><span class="hero-btn-icon">🚀</span> Run Pipeline</button>
-        </div>
-      </div>
-      <div class="hero-right">
-        <div class="hero-img"><div class="hero-img-inner">👕</div></div>
-        <div class="hero-imgs-col">
-          <div class="hero-img small"><div class="hero-img-inner">🔍</div></div>
-          <div class="hero-img small"><div class="hero-img-inner">📊</div></div>
-        </div>
+    <div class="section-label" style="margin-top:28px">Scheduled Jobs</div>
+    <div class="card">
+      <div id="schedule-list-workers">
+        <div class="skeleton" style="margin:16px 20px;width:60%"></div>
       </div>
     </div>
+  </div>
 
-    <!-- Date + Export -->
-    <div class="date-export">
-      <div class="date-label">📅 <strong>01 Jun 26 — 29 Jun 26</strong></div>
-      <button class="export-btn">⬇️ Export Report</button>
+  <!-- ── SCHEDULE PAGE ── -->
+  <div class="page" id="page-schedule">
+    <div class="page-header">
+      <h2>Scheduled Jobs</h2>
+      <p>All automated jobs running on a cron schedule (America/Los_Angeles timezone)</p>
     </div>
-
-    <!-- STAT CARDS -->
-    <div class="cards-row">
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon purple">🤖</div>
-          <div class="stat-badge">↑ 5%</div>
-        </div>
-        <div class="stat-label">Active Workflows</div>
-        <div class="stat-value">3</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon green">✅</div>
-          <div class="stat-badge">↑ 5%</div>
-        </div>
-        <div class="stat-label">Index Success Rate</div>
-        <div class="stat-value">98.2%</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon blue">📄</div>
-          <div class="stat-badge">↑ 5%</div>
-        </div>
-        <div class="stat-label">Pages Generated</div>
-        <div class="stat-value">1.2K</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-card-header">
-          <div class="stat-icon orange">⚡</div>
-          <div class="stat-badge">↑ 5%</div>
-        </div>
-        <div class="stat-label">Avg Publish Time</div>
-        <div class="stat-value">8.4s</div>
+    <div class="card">
+      <div id="schedule-list">
+        <div class="skeleton" style="margin:16px 20px;width:60%"></div>
       </div>
     </div>
+  </div>
 
-    <!-- BOTTOM GRID: DB Card + Chart -->
-    <div class="bottom-grid">
-
-      <!-- DB / Storage Card -->
-      <div class="db-card">
-        <div class="card-title"><span class="ct-icon">🗄️</span> Database Status</div>
-        <div class="db-donut-wrap">
-          <canvas id="donutChart" width="130" height="130"></canvas>
-          <div class="db-donut-center">
-            <div class="db-donut-pct">74 MB</div>
-            <div class="db-donut-sub">of 500 MB</div>
-          </div>
-        </div>
-        <div class="db-stats">
-          <div class="db-stat">
-            <div class="db-stat-label">Pages Stored</div>
-            <div class="db-stat-val">1,248</div>
-          </div>
-          <div class="db-stat">
-            <div class="db-stat-label">Jobs Queued</div>
-            <div class="db-stat-val">4</div>
-          </div>
-          <div class="db-stat">
-            <div class="db-stat-label">Failed Jobs</div>
-            <div class="db-stat-val">2</div>
-          </div>
-          <div class="db-stat">
-            <div class="db-stat-label">Avg Index Time</div>
-            <div class="db-stat-val">3.1s</div>
-          </div>
-        </div>
-        <div class="db-bar-row">
-          <div class="db-bar-header"><span>Content Data</span><span>48 MB</span></div>
-          <div class="db-bar-bg"><div class="db-bar-fill purple" style="width:65%"></div></div>
-        </div>
-        <div class="db-bar-row">
-          <div class="db-bar-header"><span>Logs & Metrics</span><span>16 MB</span></div>
-          <div class="db-bar-bg"><div class="db-bar-fill pink" style="width:22%"></div></div>
-        </div>
-        <div class="db-bar-row">
-          <div class="db-bar-header"><span>Queue Data</span><span>10 MB</span></div>
-          <div class="db-bar-bg"><div class="db-bar-fill blue" style="width:13%"></div></div>
-        </div>
+  <!-- ── BLOG POSTS PAGE ── -->
+  <div class="page" id="page-pages">
+    <div class="page-header">
+      <h2>Blog Posts</h2>
+      <p>AI-generated blog content published to your WordPress site</p>
+    </div>
+    <div class="kpi-grid" id="pages-kpis"></div>
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Title</th><th>Status</th><th>Published</th><th>Indexed</th><th>Link</th></tr></thead>
+          <tbody id="pages-tbody"><tr><td colspan="5" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
       </div>
+    </div>
+  </div>
 
-      <!-- Performance Chart -->
-      <div class="chart-card">
-        <div class="chart-header">
-          <div class="chart-title">📈 SEO Output &amp; API Usage</div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div class="chart-legend">
-              <div class="legend-item"><div class="legend-dot" style="background:#7c3aed"></div> Pages</div>
-              <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div> API Calls</div>
-            </div>
-            <div class="chart-period">Monthly ▾</div>
-          </div>
-        </div>
-        <div class="spending-overview">
-          <span class="spending-label">Published this month:</span>
-          <span class="spending-value">248 pages</span>
-          <span class="spending-badge">↑ 21%</span>
-        </div>
-        <div class="chart-wrap">
-          <canvas id="perfChart"></canvas>
-        </div>
-        <div class="breakdown-row">
-          <div class="breakdown-item">
-            <div class="bk-label">Wordpress Publishes</div>
-            <div class="bk-value">248</div>
-            <div class="bk-bar-bg"><div class="bk-bar-fill v" style="width:70%"></div></div>
-          </div>
-          <div class="breakdown-item">
-            <div class="bk-label">Google Index Requests</div>
-            <div class="bk-value">231</div>
-            <div class="bk-bar-bg"><div class="bk-bar-fill s" style="width:55%"></div></div>
-          </div>
-          <div class="breakdown-item">
-            <div class="bk-label">Claude API Calls</div>
-            <div class="bk-value">496</div>
-            <div class="bk-bar-bg"><div class="bk-bar-fill a" style="width:90%"></div></div>
-          </div>
+  <!-- ── LANDING PAGES PAGE ── -->
+  <div class="page" id="page-landing">
+    <div class="page-header">
+      <h2>Local Landing Pages</h2>
+      <p>City-specific landing pages optimized for local SEO</p>
+    </div>
+    <div class="kpi-grid" id="landing-kpis"></div>
+    <div class="card">
+      <div class="table-wrap" id="landing-content">
+        <div class="empty-state">
+          <div class="empty-state-icon">📍</div>
+          <div class="empty-state-title">Loading landing pages...</div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- RECENT ACTIVITY TABLE -->
-    <div class="activity-card">
-      <div class="activity-header">
-        <div class="card-title" style="margin-bottom:0"><span class="ct-icon">🕐</span> Recent Page Activity</div>
-        <div class="view-all">View all →</div>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Page Title</th>
-            <th>Slug</th>
-            <th>Published</th>
-            <th>Indexed</th>
-            <th>Duration</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>Best Dry Cleaning in Miami</strong></td>
-            <td style="color:#7c3aed">best-dry-cleaning-miami</td>
-            <td>Jun 29, 06:14</td>
-            <td>Jun 29, 06:15</td>
-            <td>62s</td>
-            <td><span class="status-pill indexed">● Indexed</span></td>
-          </tr>
-          <tr>
-            <td><strong>Same Day Laundry Service Near Me</strong></td>
-            <td style="color:#7c3aed">same-day-laundry-near-me</td>
-            <td>Jun 29, 06:12</td>
-            <td>Jun 29, 06:13</td>
-            <td>58s</td>
-            <td><span class="status-pill indexed">● Indexed</span></td>
-          </tr>
-          <tr>
-            <td><strong>How to Remove Wine Stains from Linen</strong></td>
-            <td style="color:#7c3aed">remove-wine-stains-linen</td>
-            <td>Jun 29, 06:10</td>
-            <td>—</td>
-            <td>45s</td>
-            <td><span class="status-pill published">● Published</span></td>
-          </tr>
-          <tr>
-            <td><strong>Affordable Laundromat Miami Beach</strong></td>
-            <td style="color:#7c3aed">laundromat-miami-beach</td>
-            <td>—</td>
-            <td>—</td>
-            <td>—</td>
-            <td><span class="status-pill generating">⏳ Generating</span></td>
-          </tr>
-          <tr>
-            <td><strong>Fabric Care Guide for Wool Garments</strong></td>
-            <td style="color:#7c3aed">fabric-care-wool-garments</td>
-            <td>Jun 28, 06:08</td>
-            <td>—</td>
-            <td>71s</td>
-            <td><span class="status-pill failed">✕ Index Failed</span></td>
-          </tr>
-        </tbody>
-      </table>
+  <!-- ── SEO AUDIT PAGE ── -->
+  <div class="page" id="page-seo">
+    <div class="page-header">
+      <h2>SEO Audit</h2>
+      <p>Real-time scan of your site for SEO issues and opportunities</p>
     </div>
+    <div class="kpi-grid" id="seo-kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">⚠️</div>
+          <div>
+            <div class="card-head-title">All Open Issues</div>
+            <div class="card-head-sub">Sorted by severity</div>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Issue Type</th><th>URL</th><th>Severity</th><th>Status</th><th>Detected</th></tr></thead>
+          <tbody id="seo-issues-tbody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-  </div><!-- /content -->
-</div><!-- /main -->
+  <!-- ── SEARCH CONSOLE PAGE ── -->
+  <div class="page" id="page-gsc">
+    <div class="page-header">
+      <h2>Google Search Console</h2>
+      <p>Search performance data from Google Search Console</p>
+    </div>
+    <div class="kpi-grid" id="gsc-kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">📊</div>
+          <div>
+            <div class="card-head-title">Impressions & Clicks</div>
+            <div class="card-head-sub">Last 14 days</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body"><div class="chart-wrap"><canvas id="chart-gsc"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- ── ANALYTICS PAGE ── -->
+  <div class="page" id="page-analytics">
+    <div class="page-header">
+      <h2>Google Analytics (GA4)</h2>
+      <p>Traffic and conversion data from Google Analytics</p>
+    </div>
+    <div class="kpi-grid" id="analytics-kpis"></div>
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-left">
+          <div class="card-head-icon">📈</div>
+          <div>
+            <div class="card-head-title">Traffic Overview</div>
+            <div class="card-head-sub">28-day performance summary</div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body" id="analytics-detail">
+        <div class="skeleton" style="width:60%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REPORTS PAGE ── -->
+  <div class="page" id="page-reports">
+    <div class="page-header">
+      <h2>Reports</h2>
+      <p>Daily and weekly performance reports generated automatically</p>
+    </div>
+    <div id="reports-list">
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">Loading reports...</div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
-  // ── Donut Chart ──────────────────────────────
-  const donut = document.getElementById('donutChart').getContext('2d');
-  new Chart(donut, {
-    type: 'doughnut',
-    data: {
-      datasets: [{
-        data: [65, 22, 13],
-        backgroundColor: ['#7c3aed', '#ec4899', '#3b82f6'],
-        borderWidth: 0,
-        hoverOffset: 4,
-      }]
-    },
-    options: {
-      cutout: '72%',
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      responsive: false,
-    }
-  });
+const PAGE_SUBS = {
+  dashboard: 'Overview of your SEO automation performance',
+  workers: 'Automated AI workers running in the background',
+  schedule: 'All cron jobs and their schedules',
+  pages: 'AI-generated blog posts published to WordPress',
+  landing: 'City-specific pages for local SEO',
+  seo: 'Real-time SEO issue detection and fixes',
+  gsc: 'Google Search Console performance data',
+  analytics: 'Google Analytics traffic and conversions',
+  reports: 'Daily and weekly automated reports',
+};
 
-  // ── Performance Chart ────────────────────────
-  const perf = document.getElementById('perfChart').getContext('2d');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  new Chart(perf, {
-    type: 'bar',
-    data: {
-      labels: months,
-      datasets: [
-        {
-          label: 'Pages Published',
-          data: [120,180,210,155,230,248,0,0,0,0,0,0],
-          backgroundColor: (ctx) => {
-            const g = ctx.chart.ctx.createLinearGradient(0,0,0,180);
-            g.addColorStop(0,'rgba(124,58,237,.7)');
-            g.addColorStop(1,'rgba(124,58,237,.08)');
-            return g;
-          },
-          borderRadius: 6,
-          borderSkipped: false,
-        },
-        {
-          label: 'API Calls',
-          type: 'line',
-          data: [300,220,280,210,320,310,null,null,null,null,null,null],
-          borderColor: '#f59e0b',
-          backgroundColor: 'rgba(245,158,11,.12)',
-          pointBackgroundColor: '#fff',
-          pointBorderColor: '#f59e0b',
-          pointBorderWidth: 2,
-          pointRadius: 4,
-          tension: .4,
-          fill: true,
-          yAxisID: 'y1',
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#bbb' } },
-        y:  { grid: { color: '#f0f0fa' }, ticks: { font: { size: 10 }, color: '#bbb' }, beginAtZero: true },
-        y1: { display: false, beginAtZero: true },
-      }
-    }
+let dashData = null, trendData = [], seoIssues = [], reports = [], gscTrend = [];
+let contentChart = null, gscChart = null;
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.nav-item[data-page]').forEach(el => {
+  el.addEventListener('click', e => {
+    e.preventDefault();
+    const page = el.dataset.page;
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page-${page}`)?.classList.add('active');
+    const label = el.querySelector('.nav-icon').nextSibling.textContent.trim();
+    document.getElementById('page-title').textContent = label;
+    document.getElementById('page-sub').textContent = PAGE_SUBS[page] || '';
   });
+});
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+async function fetchJSON(url) { const r = await fetch(url); return r.json(); }
+
+function fmtNum(n) {
+  if (n == null || n === '') return '—';
+  const num = typeof n === 'string' ? parseFloat(n) : n;
+  if (isNaN(num)) return n;
+  if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+  if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+  return String(num);
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  try {
+    return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch { return s; }
+}
+
+function badge(cls, text) {
+  return `<span class="badge badge-${cls}">${text}</span>`;
+}
+
+function severityBadge(s) {
+  const m = { critical:'badge-critical', high:'badge-high', medium:'badge-medium', low:'badge-low' };
+  return `<span class="badge ${m[s]||'badge-low'}">${s||'?'}</span>`;
+}
+
+function statusBadge(s) {
+  const m = { open:'badge-open', resolved:'badge-resolved', running:'badge-green' };
+  return `<span class="badge ${m[s]||'badge-gray'}">${s||'—'}</span>`;
+}
+
+// ── KPI card builder ──────────────────────────────────────────────────────────
+function kpiCard({ icon, label, value, sub, pill, color }) {
+  return `
+    <div class="kpi-card ${color||''}">
+      <div class="kpi-icon">${icon}</div>
+      <div class="kpi-label">${label}</div>
+      <div class="kpi-value">${value}</div>
+      ${sub ? `<div class="kpi-sub">${sub}</div>` : ''}
+      ${pill ? `<div class="kpi-pill ${pill.color}">${pill.text}</div>` : ''}
+    </div>`;
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function renderDashboard(d) {
+  const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
+
+  document.getElementById('kpi-grid').innerHTML = [
+    { icon:'📄', label:'Total Pages', value: fmtNum(ov.total_pages), sub:'All time', color:'' },
+    { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:`${fmtNum(ov.pages_indexed_today)} indexed`, color:'green' },
+    { icon:'📍', label:'Landing Pages', value: fmtNum(ov.landing_pages_published), sub:`of ${fmtNum(ov.landing_pages_total)} total`, color:'' },
+    { icon:'⏳', label:'Job Queue', value: fmtNum(ov.queue_length), sub:`${fmtNum(ov.failed_jobs)} failed`,
+      pill: ov.failed_jobs > 0 ? {text:`${ov.failed_jobs} failed`,color:'red'} : null, color: ov.failed_jobs > 0 ? 'red' : '' },
+    { icon:'⚠️', label:'SEO Issues', value: fmtNum(ov.seo_issues_open), sub:'Open issues',
+      pill: ov.seo_issues_open > 0 ? {text:'Needs review',color:'yellow'} : {text:'All clear ✓',color:'green'},
+      color: ov.seo_issues_open > 0 ? 'yellow' : 'green' },
+    { icon:'👁️', label:'Impressions', value: fmtNum(gsc.impressions), sub:gsc.date_range||'28 days', color:'' },
+    { icon:'🖱️', label:'GSC Clicks', value: fmtNum(gsc.clicks), sub:`CTR: ${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}`, color:'purple' },
+    { icon:'📈', label:'Sessions', value: fmtNum(an.sessions), sub:`${fmtNum(an.organic_sessions)} organic`, color:'' },
+    { icon:'🎯', label:'Conversions', value: fmtNum(an.conversions), sub:`Bounce: ${an.bounce_rate ? an.bounce_rate+'%' : '—'}`, color:'green' },
+    { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), sub:`${fmtNum(au.issues_found)} issues found`, color:'' },
+    { icon:'🔧', label:'Auto-Fixed', value: fmtNum(au.issues_fixed), sub:'This audit',
+      pill: au.issues_fixed > 0 ? {text:'Applied',color:'green'} : null, color:'' },
+    { icon:'🏆', label:'Avg Position', value: gsc.avg_position||'—', sub:'Google SERP', color:'' },
+  ].map(kpiCard).join('');
+
+  // GSC panel
+  document.getElementById('gsc-summary-panel').innerHTML = gsc.impressions != null ? `
+    <div class="metric-grid">
+      <div class="metric-item"><div class="metric-label">Impressions</div><div class="metric-val">${fmtNum(gsc.impressions)}</div></div>
+      <div class="metric-item"><div class="metric-label">Clicks</div><div class="metric-val">${fmtNum(gsc.clicks)}</div></div>
+      <div class="metric-item"><div class="metric-label">Avg CTR</div><div class="metric-val">${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}</div></div>
+      <div class="metric-item"><div class="metric-label">Avg Position</div><div class="metric-val">${gsc.avg_position||'—'}</div></div>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:14px">Last synced: ${fmtDate(gsc.synced_at)}</div>
+  ` : `<div class="empty-state" style="padding:24px 0">
+    <div class="empty-state-icon" style="font-size:28px">📡</div>
+    <div class="empty-state-title">Not connected yet</div>
+    <div class="empty-state-text">Set GOOGLE_REFRESH_TOKEN in your .env to sync Search Console data</div>
+  </div>`;
+
+  // Analytics panel
+  const an2 = d.analytics || {};
+  document.getElementById('analytics-summary-panel').innerHTML = an2.sessions != null ? `
+    <div class="metric-grid">
+      <div class="metric-item"><div class="metric-label">Sessions</div><div class="metric-val">${fmtNum(an2.sessions)}</div></div>
+      <div class="metric-item"><div class="metric-label">Users</div><div class="metric-val">${fmtNum(an2.users)}</div></div>
+      <div class="metric-item"><div class="metric-label">Organic</div><div class="metric-val">${fmtNum(an2.organic_sessions)}</div></div>
+      <div class="metric-item"><div class="metric-label">Conversions</div><div class="metric-val">${fmtNum(an2.conversions)}</div></div>
+    </div>
+    <div style="font-size:11.5px;color:var(--muted);margin-top:14px">Bounce: ${an2.bounce_rate ? an2.bounce_rate+'%' : '—'} · Avg Session: ${an2.avg_session_duration ? an2.avg_session_duration+'s' : '—'}</div>
+  ` : `<div class="empty-state" style="padding:24px 0">
+    <div class="empty-state-icon" style="font-size:28px">📈</div>
+    <div class="empty-state-title">Not connected yet</div>
+    <div class="empty-state-text">Set GOOGLE_GA4_PROPERTY_ID in your .env to sync Analytics data</div>
+  </div>`;
+
+  // Audit panel
+  document.getElementById('audit-panel').innerHTML = au.pages_audited ? `
+    <div class="stat-row"><span class="stat-label">Pages Scanned</span><span class="stat-value">${fmtNum(au.pages_audited)}</span></div>
+    <div class="stat-row"><span class="stat-label">Issues Found</span><span class="stat-value" style="color:${au.issues_found > 0 ? 'var(--yellow)' : 'var(--green)'}">${fmtNum(au.issues_found)}</span></div>
+    <div class="stat-row"><span class="stat-label">Auto-Fixed</span><span class="stat-value" style="color:var(--green)">${fmtNum(au.issues_fixed)}</span></div>
+    <div class="stat-row"><span class="stat-label">Last Run</span><span class="stat-value">${fmtDate(au.completed_at)}</span></div>
+  ` : `<div class="empty-state" style="padding:20px 0">
+    <div class="empty-state-icon" style="font-size:28px">🔍</div>
+    <div class="empty-state-title">No audit run yet</div>
+    <div class="empty-state-text">Audit runs every Monday at 3 AM</div>
+  </div>`;
+
+  // Issues badge
+  const issueCount = ov.seo_issues_open || 0;
+  const badge = document.getElementById('issues-badge');
+  badge.textContent = issueCount;
+  badge.style.display = issueCount > 0 ? '' : 'none';
+}
+
+// ── Issues Table ──────────────────────────────────────────────────────────────
+function renderIssuesTable(issues, tbodyId, cols) {
+  const tbody = document.getElementById(tbodyId);
+  if (!issues || issues.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="${cols}" style="text-align:center;padding:32px;color:var(--muted)">🎉 No open SEO issues — your site is clean!</td></tr>`;
+    return;
+  }
+  const open = issues.filter(i => i.status === 'open');
+  tbody.innerHTML = open.slice(0, 25).map((i, n) => `
+    <tr>
+      ${cols >= 6 ? `<td style="color:var(--muted);font-weight:600">${n+1}</td>` : ''}
+      <td><code style="font-size:12px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--text2)">${i.type||'—'}</code></td>
+      <td class="truncate" title="${i.url||''}">
+        ${i.url ? `<a href="${i.url}" target="_blank" class="view-link">${i.url.replace(/^https?:\/\/[^\/]+/, '')||'/'}</a>` : '<span class="text-muted">—</span>'}
+      </td>
+      ${severityBadge ? `<td>${severityBadge(i.severity)}</td>` : ''}
+      ${cols >= 6 ? `<td>${statusBadge(i.status)}</td>` : ''}
+      <td class="text-muted">${fmtDate(i.detected_at)}</td>
+    </tr>`).join('');
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+function renderContentChart(trend) {
+  const labels = trend.map(d => d.date?.slice(5)).reverse();
+  const published = trend.map(d => d.pages_published || 0).reverse();
+  const indexed = trend.map(d => d.pages_indexed || 0).reverse();
+  if (contentChart) contentChart.destroy();
+  contentChart = new Chart(document.getElementById('chart-content').getContext('2d'), {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Published', data: published, backgroundColor: 'rgba(37,99,235,.65)', borderRadius: 5 },
+      { label: 'Indexed',   data: indexed,   backgroundColor: 'rgba(5,150,105,.45)', borderRadius: 5 },
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+        y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+      },
+    },
+  });
+}
+
+function renderGSCChart(trend) {
+  if (!trend || !trend.length) return;
+  const labels = trend.map(d => d.date?.slice(5)).reverse();
+  const imp = trend.map(d => d.impressions || 0).reverse();
+  const clicks = trend.map(d => d.clicks || 0).reverse();
+  if (gscChart) gscChart.destroy();
+  const ctx = document.getElementById('chart-gsc');
+  if (!ctx) return;
+  gscChart = new Chart(ctx.getContext('2d'), {
+    type: 'line',
+    data: { labels, datasets: [
+      { label: 'Impressions', data: imp, borderColor: 'rgba(37,99,235,.8)', backgroundColor: 'rgba(37,99,235,.07)', fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: '#2563eb' },
+      { label: 'Clicks', data: clicks, borderColor: 'rgba(5,150,105,.8)', backgroundColor: 'rgba(5,150,105,.07)', fill: true, tension: .4, pointRadius: 3, pointBackgroundColor: '#059669' },
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: '#94a3b8', font: { size: 12 } } } },
+      scales: {
+        x: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+        y: { ticks: { color: '#94a3b8', font: { size: 11 } }, grid: { color: '#e2e8f0' } },
+      },
+    },
+  });
+}
+
+// ── Workers ───────────────────────────────────────────────────────────────────
+function renderWorkers(data) {
+  const defs = [
+    { name:'Content Worker',    desc:'Blog posts & landing pages', icon:'📝', key:'content' },
+    { name:'SEO Worker',        desc:'Audit & auto-fix issues',     icon:'🔍', key:'seo' },
+    { name:'Analytics Worker',  desc:'GSC & GA4 data sync',         icon:'📊', key:'analytics' },
+    { name:'Monitoring Worker', desc:'Uptime & health checks',       icon:'🛡️', key:'monitoring' },
+    { name:'Publishing Worker', desc:'WordPress REST API',           icon:'🚀', key:'queue' },
+    { name:'Indexing Worker',   desc:'Google Indexing API',          icon:'📤', key:'queue' },
+  ];
+  document.getElementById('workers-grid').innerHTML = defs.map(w => {
+    const status = data?.workers?.[w.key] || 'running';
+    const dotCls = status === 'running' ? '' : status === 'idle' ? 'yellow' : 'red';
+    return `
+      <div class="worker-card">
+        <div class="worker-icon">${w.icon}</div>
+        <div class="worker-name">${w.name}</div>
+        <div class="worker-desc">${w.desc}</div>
+        <div class="worker-status-row">
+          <span class="w-dot ${dotCls}"></span>
+          ${statusBadge(status)}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Schedule ──────────────────────────────────────────────────────────────────
+function renderSchedule(jobs, containerId) {
+  const el = document.getElementById(containerId);
+  if (!jobs || !jobs.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏰</div><div class="empty-state-title">No scheduled jobs</div></div>';
+    return;
+  }
+  el.innerHTML = jobs.map(j => `
+    <div class="schedule-row">
+      <div>
+        <div class="schedule-name">${j.name}</div>
+        <div class="schedule-cron">${j.cronExpr}</div>
+      </div>
+      <span class="schedule-badge">Active</span>
+    </div>`).join('');
+}
+
+// ── Blog Posts ────────────────────────────────────────────────────────────────
+function renderPages(list) {
+  const count = { indexed:0, published:0, content_generating:0 };
+  list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
+
+  document.getElementById('pages-kpis').innerHTML = [
+    { icon:'📝', label:'Total Posts',  value: list.length, color:'' },
+    { icon:'✅', label:'Indexed',      value: count.indexed||0, color:'green' },
+    { icon:'🚀', label:'Published',    value: count.published||0, color:'' },
+    { icon:'⏳', label:'Generating',   value: count.content_generating||0, color:'yellow' },
+  ].map(kpiCard).join('');
+
+  const statusMap = { indexed:'green', published:'blue', content_generating:'yellow', publish_failed:'red', index_failed:'red', generation_failed:'red' };
+  document.getElementById('pages-tbody').innerHTML = list.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">No blog posts yet — they will appear after the first scheduled run</td></tr>'
+    : list.map(p => `
+      <tr>
+        <td class="truncate" title="${p.title}" style="font-weight:500;color:var(--text)">${p.title}</td>
+        <td>${badge(statusMap[p.status]||'gray', p.status.replace(/_/g,' '))}</td>
+        <td class="text-muted">${fmtDate(p.published_at)}</td>
+        <td class="text-muted">${fmtDate(p.indexed_at)}</td>
+        <td>${p.url ? `<a href="${p.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
+      </tr>`).join('');
+}
+
+// ── Landing Pages ─────────────────────────────────────────────────────────────
+function renderLandingPages(list) {
+  const count = { indexed:0, published:0, generating:0, pending:0 };
+  list.forEach(p => { count[p.status] = (count[p.status]||0) + 1; });
+
+  document.getElementById('landing-kpis').innerHTML = [
+    { icon:'📍', label:'Total Pages', value: list.length, color:'' },
+    { icon:'✅', label:'Indexed',     value: count.indexed||0, color:'green' },
+    { icon:'🚀', label:'Published',   value: count.published||0, color:'' },
+    { icon:'⏳', label:'Generating',  value: (count.generating||0)+(count.pending||0), color:'yellow' },
+  ].map(kpiCard).join('');
+
+  const statusMap = { indexed:'green', published:'blue', generating:'yellow', pending:'gray', skipped_duplicate:'gray', generation_failed:'red' };
+
+  if (!list.length) {
+    document.getElementById('landing-content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📍</div>
+        <div class="empty-state-title">No landing pages yet</div>
+        <div class="empty-state-text">Landing pages will be generated daily at 6:30 AM for your target cities and services</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('landing-content').innerHTML = `
+    <table>
+      <thead><tr><th>City</th><th>Service Type</th><th>SEO Score</th><th>Status</th><th>Published</th><th>Link</th></tr></thead>
+      <tbody>
+        ${list.map(lp => `
+          <tr>
+            <td style="font-weight:600;color:var(--text)">${lp.city}, ${lp.state}</td>
+            <td class="text-muted">${lp.service_type}</td>
+            <td>
+              ${lp.seo_score != null
+                ? `<span style="font-weight:700;color:${lp.seo_score>=80?'var(--green)':lp.seo_score>=60?'var(--yellow)':'var(--red)'}">${lp.seo_score}<span style="font-size:11px;font-weight:400;color:var(--muted)">/100</span></span>`
+                : '<span class="text-muted">—</span>'}
+            </td>
+            <td>${badge(statusMap[lp.status]||'gray', lp.status.replace(/_/g,' '))}</td>
+            <td class="text-muted">${fmtDate(lp.published_at)}</td>
+            <td>${lp.url ? `<a href="${lp.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
+          </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── Analytics Detail ──────────────────────────────────────────────────────────
+function renderAnalyticsDetail(an) {
+  document.getElementById('analytics-detail').innerHTML = an.sessions != null ? `
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:20px">
+      ${[
+        ['Sessions',       fmtNum(an.sessions)],
+        ['Users',          fmtNum(an.users)],
+        ['Organic Sessions', fmtNum(an.organic_sessions)],
+        ['Conversions',    fmtNum(an.conversions)],
+        ['Bounce Rate',    an.bounce_rate ? an.bounce_rate+'%' : '—'],
+        ['Avg Session',    an.avg_session_duration ? an.avg_session_duration+'s' : '—'],
+      ].map(([l,v]) => `
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${l}</div>
+          <div style="font-size:24px;font-weight:800;color:var(--text)">${v}</div>
+        </div>`).join('')}
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px solid var(--border)">Last synced: ${fmtDate(an.synced_at)} · 28-day window</div>
+  ` : `<div class="empty-state">
+    <div class="empty-state-icon">📈</div>
+    <div class="empty-state-title">Not connected yet</div>
+    <div class="empty-state-text">Set GOOGLE_GA4_PROPERTY_ID in your .env to sync Analytics data</div>
+  </div>`;
+}
+
+// ── Reports ───────────────────────────────────────────────────────────────────
+function renderReports(reps) {
+  if (!reps || !reps.length) {
+    document.getElementById('reports-list').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">No reports yet</div>
+        <div class="empty-state-text">Daily reports are sent at 8 AM and weekly reports every Monday at 3 AM</div>
+      </div>`;
+    return;
+  }
+  document.getElementById('reports-list').innerHTML = reps.map(r => {
+    const s = r.summary || {};
+    const typeIcon = r.type === 'weekly' ? '📋' : '📊';
+    const typeLabel = r.type === 'weekly' ? 'Weekly Report' : 'Daily Report';
+    return `
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-left">
+            <div class="card-head-icon">${typeIcon}</div>
+            <div>
+              <div class="card-head-title">${r.title || typeLabel}</div>
+              <div class="card-head-sub">${fmtDate(r.generated_at)}</div>
+            </div>
+          </div>
+          ${badge(r.type==='weekly'?'purple':'blue', typeLabel)}
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px">
+            ${[
+              s.pagesPublished  != null ? ['Published',    s.pagesPublished,  'var(--text)']   : null,
+              s.pagesIndexed    != null ? ['Indexed',      s.pagesIndexed,    'var(--text)']   : null,
+              s.seoIssuesOpen   != null ? ['SEO Issues',   s.seoIssuesOpen,   'var(--yellow)'] : null,
+              s.gscImpressions  != null ? ['Impressions',  fmtNum(s.gscImpressions), 'var(--text)'] : null,
+              s.analyticsSessions != null ? ['Sessions',   fmtNum(s.analyticsSessions), 'var(--text)'] : null,
+            ].filter(Boolean).map(([l,v,c]) => `
+              <div>
+                <div style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px">${l}</div>
+                <div style="font-size:20px;font-weight:800;color:${c}">${v}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── Load All ──────────────────────────────────────────────────────────────────
+async function loadAll() {
+  try {
+    const [dash, trend, issues, reps, gTrend, pages, landingPages] = await Promise.allSettled([
+      fetchJSON('/api/dashboard'),
+      fetchJSON('/api/trend'),
+      fetchJSON('/api/seo-issues'),
+      fetchJSON('/api/reports'),
+      fetchJSON('/api/gsc-trend'),
+      fetchJSON('/api/pages'),
+      fetchJSON('/api/landing-pages/list'),
+    ]);
+
+    if (dash.status === 'fulfilled') {
+      dashData = dash.value;
+      renderDashboard(dashData);
+      renderWorkers(dashData);
+      if (dashData.scheduler) {
+        renderSchedule(dashData.scheduler, 'schedule-list');
+        renderSchedule(dashData.scheduler, 'schedule-list-workers');
+      }
+
+      const an = dashData.analytics || {};
+      document.getElementById('analytics-kpis').innerHTML = [
+        { icon:'📊', label:'Sessions (28d)',    value: fmtNum(an.sessions), color:'' },
+        { icon:'👥', label:'Users (28d)',        value: fmtNum(an.users), color:'' },
+        { icon:'🌱', label:'Organic Sessions',  value: fmtNum(an.organic_sessions), color:'green' },
+        { icon:'🎯', label:'Conversions',       value: fmtNum(an.conversions), color:'green' },
+        { icon:'↩️', label:'Bounce Rate',       value: an.bounce_rate ? an.bounce_rate+'%' : '—', color:'' },
+        { icon:'⏱',  label:'Avg Session',       value: an.avg_session_duration ? an.avg_session_duration+'s' : '—', color:'' },
+      ].map(kpiCard).join('');
+
+      const gsc = dashData.gsc || {};
+      document.getElementById('gsc-kpis').innerHTML = [
+        { icon:'👁️', label:'Impressions (28d)', value: fmtNum(gsc.impressions), color:'' },
+        { icon:'🖱️', label:'Clicks (28d)',      value: fmtNum(gsc.clicks), color:'' },
+        { icon:'📊', label:'Avg CTR',           value: gsc.avg_ctr ? gsc.avg_ctr+'%' : '—', color:'' },
+        { icon:'🏆', label:'Avg Position',      value: gsc.avg_position||'—', color:'' },
+      ].map(kpiCard).join('');
+
+      const ov = dashData.overview || {}, au = dashData.audit || {};
+      document.getElementById('seo-kpis').innerHTML = [
+        { icon:'⚠️', label:'Open Issues',    value: fmtNum(ov.seo_issues_open), color: ov.seo_issues_open > 0 ? 'yellow' : 'green' },
+        { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), color:'' },
+        { icon:'🐛', label:'Issues Found',  value: fmtNum(au.issues_found), color: au.issues_found > 0 ? 'red' : 'green' },
+        { icon:'🔧', label:'Auto-Fixed',    value: fmtNum(au.issues_fixed), color: au.issues_fixed > 0 ? 'green' : '' },
+      ].map(kpiCard).join('');
+
+      renderAnalyticsDetail(dashData.analytics || {});
+    }
+
+    if (trend.status === 'fulfilled' && Array.isArray(trend.value)) renderContentChart(trend.value);
+    if (issues.status === 'fulfilled' && Array.isArray(issues.value)) {
+      seoIssues = issues.value;
+      renderIssuesTable(seoIssues, 'issues-tbody', 4);
+      renderIssuesTable(seoIssues, 'seo-issues-tbody', 6);
+    }
+    if (reps.status === 'fulfilled' && Array.isArray(reps.value)) renderReports(reps.value);
+    if (gTrend.status === 'fulfilled' && Array.isArray(gTrend.value)) renderGSCChart(gTrend.value);
+    if (pages.status === 'fulfilled' && Array.isArray(pages.value)) renderPages(pages.value);
+    if (landingPages.status === 'fulfilled' && Array.isArray(landingPages.value)) renderLandingPages(landingPages.value);
+
+    const now = new Date().toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    document.getElementById('last-refresh').textContent = `Updated ${now}`;
+  } catch (err) {
+    console.error('Dashboard error:', err);
+  }
+}
+
+loadAll();
+setInterval(loadAll, 30000);
 </script>
 </body>
 </html>

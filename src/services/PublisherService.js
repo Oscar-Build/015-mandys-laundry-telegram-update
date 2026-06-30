@@ -3,6 +3,7 @@
 const axios = require('axios');
 const config = require('../config');
 const logger = require('./Logger');
+const imageService = require('./FeaturedImageService');
 
 function getAuthHeader() {
   if (!config.wordpress.username || !config.wordpress.appPassword) {
@@ -14,13 +15,21 @@ function getAuthHeader() {
 
 /**
  * Publishes a page to WordPress via the REST API.
+ * Optionally uploads a featured image from the imageUrl field.
  * Returns { postId, url, status }
  */
 async function publishPage(pageData) {
-  const { title, slug, content, metaDescription, keywords } = pageData;
+  const { title, slug, content, metaDescription, keywords, imageUrl, imageTopic } = pageData;
 
   if (!config.wordpress.apiUrl) {
     throw new Error('WORDPRESS_API_URL not configured');
+  }
+
+  // Upload featured image (non-fatal — post publishes even if image fails)
+  let featuredMediaId = null;
+  if (imageUrl) {
+    const uploaded = await imageService.uploadToWordPress(imageUrl, slug || title, title);
+    if (uploaded) featuredMediaId = uploaded.mediaId;
   }
 
   const payload = {
@@ -29,14 +38,14 @@ async function publishPage(pageData) {
     content,
     status: 'publish',
     excerpt: metaDescription,
-    // Yoast SEO meta (if Yoast REST API plugin is enabled)
     meta: {
       _yoast_wpseo_metadesc: metaDescription,
       _yoast_wpseo_focuskw: keywords ? keywords[0] : '',
     },
+    ...(featuredMediaId ? { featured_media: featuredMediaId } : {}),
   };
 
-  logger.info('Publishing page to WordPress', { title, slug });
+  logger.info('Publishing page to WordPress', { title, slug, hasFeaturedImage: !!featuredMediaId });
 
   const response = await axios.post(`${config.wordpress.apiUrl}/posts`, payload, {
     headers: {
@@ -51,6 +60,7 @@ async function publishPage(pageData) {
     postId: post.id,
     url: post.link,
     status: post.status,
+    featuredMediaId,
   };
 
   logger.info('Page published successfully', result);

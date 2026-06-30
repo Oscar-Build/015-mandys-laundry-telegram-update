@@ -1,0 +1,61 @@
+name: Daily Content Generation (6:05 AM PST)
+
+on:
+  schedule:
+    # 5 minutes after the morning report
+    - cron: '5 14 * * *'
+  workflow_dispatch:
+
+jobs:
+  generate-content:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --omit=dev
+
+      - name: Generate blog posts
+        run: node --experimental-sqlite scripts/generate-blog-posts-now.js
+        env:
+          TELEGRAM_BOT_TOKEN:      ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:        ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORDPRESS_API_URL:       ${{ secrets.WORDPRESS_API_URL }}
+          WORDPRESS_SITE_URL:      ${{ secrets.WORDPRESS_SITE_URL }}
+          WORDPRESS_USERNAME:      ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_APP_PASSWORD:  ${{ secrets.WORDPRESS_APP_PASSWORD }}
+          ANTHROPIC_API_KEY:       ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_CLIENT_ID:        ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET:    ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN:    ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          SITE_URL:                ${{ secrets.SITE_URL }}
+          PAGES_PER_RUN:           '5'
+          CONTENT_MODEL:           claude-haiku-4-5-20251001
+          NODE_ENV:                production
+
+      - name: Generate landing pages
+        run: node --experimental-sqlite scripts/generate-landing-pages-now.js
+        env:
+          TELEGRAM_BOT_TOKEN:      ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:        ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORDPRESS_API_URL:       ${{ secrets.WORDPRESS_API_URL }}
+          WORDPRESS_SITE_URL:      ${{ secrets.WORDPRESS_SITE_URL }}
+          WORDPRESS_USERNAME:      ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_APP_PASSWORD:  ${{ secrets.WORDPRESS_APP_PASSWORD }}
+          ANTHROPIC_API_KEY:       ${{ secrets.ANTHROPIC_API_KEY }}
+          GOOGLE_CLIENT_ID:        ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET:    ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN:    ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          SITE_URL:                ${{ secrets.SITE_URL }}
+          LANDING_PAGES_PER_RUN:   '3'
+          CONTENT_MODEL:           claude-haiku-4-5-20251001
+          NODE_ENV:                production

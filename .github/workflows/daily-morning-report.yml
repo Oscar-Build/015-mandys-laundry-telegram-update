@@ -1,0 +1,41 @@
+name: Daily Morning Report (6 AM PST)
+
+on:
+  schedule:
+    # 6 AM PST = 14:00 UTC  |  6 AM PDT (summer) = 13:00 UTC
+    # Using 14:00 UTC — fires at 6 AM in winter, 7 AM in summer (close enough)
+    - cron: '0 14 * * *'
+  workflow_dispatch:   # lets you click "Run workflow" manually too
+
+jobs:
+  morning-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --omit=dev
+
+      - name: Send morning Telegram report
+        run: node scripts/morning-report.js
+        env:
+          TELEGRAM_BOT_TOKEN:      ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:        ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORDPRESS_API_URL:       ${{ secrets.WORDPRESS_API_URL }}
+          WORDPRESS_SITE_URL:      ${{ secrets.WORDPRESS_SITE_URL }}
+          WORDPRESS_USERNAME:      ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_APP_PASSWORD:  ${{ secrets.WORDPRESS_APP_PASSWORD }}
+          GOOGLE_CLIENT_ID:        ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET:    ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN:    ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+          SITE_URL:                ${{ secrets.SITE_URL }}
+          NODE_ENV:                production

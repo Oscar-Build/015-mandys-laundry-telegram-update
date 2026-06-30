@@ -1,0 +1,39 @@
+name: Weekly SEO Audit (Monday 3 AM PST)
+
+on:
+  schedule:
+    # Monday 3 AM PST = Monday 11:00 UTC
+    - cron: '0 11 * * 1'
+  workflow_dispatch:
+
+jobs:
+  seo-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --omit=dev
+
+      - name: Run SEO audit
+        run: node --experimental-sqlite scripts/run-seo-audit-now.js
+        env:
+          TELEGRAM_BOT_TOKEN:      ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:        ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORDPRESS_API_URL:       ${{ secrets.WORDPRESS_API_URL }}
+          WORDPRESS_SITE_URL:      ${{ secrets.WORDPRESS_SITE_URL }}
+          WORDPRESS_USERNAME:      ${{ secrets.WORDPRESS_USERNAME }}
+          WORDPRESS_APP_PASSWORD:  ${{ secrets.WORDPRESS_APP_PASSWORD }}
+          ANTHROPIC_API_KEY:       ${{ secrets.ANTHROPIC_API_KEY }}
+          SITE_URL:                ${{ secrets.SITE_URL }}
+          SEO_AUDIT_MAX_PAGES:     '50'
+          NODE_ENV:                production
