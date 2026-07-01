@@ -58,6 +58,7 @@ const config = {
 
   cron: {
     dailySummary: optional('DAILY_SUMMARY_CRON', '0 8 * * *'),
+    endOfDayReport: optional('END_OF_DAY_REPORT_CRON', '0 22 * * *'),
     healthCheck: optional('HEALTH_CHECK_CRON', '*/5 * * * *'),
     contentGen: optional('CONTENT_GEN_CRON', '0 6 * * *'),
     landingPageGen: optional('LANDING_PAGE_GEN_CRON', '30 6 * * *'),

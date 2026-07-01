@@ -563,6 +563,19 @@
       <p>AI-generated blog content published to your WordPress site</p>
     </div>
     <div class="kpi-grid" id="pages-kpis"></div>
+    <!-- Published but NOT indexed warning -->
+    <div class="card" id="not-indexed-card" style="display:none;border-left:4px solid var(--yellow)">
+      <div class="card-header" style="color:var(--yellow)">⚠️ Published but NOT Indexed</div>
+      <div class="card-body">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:12px">These pages were published 3+ days ago but have not been indexed by Google yet.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Published</th><th>Link</th></tr></thead>
+            <tbody id="not-indexed-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     <div class="card">
       <div class="table-wrap">
         <table>
@@ -762,23 +775,28 @@ function kpiCard({ icon, label, value, sub, pill, color }) {
 function renderDashboard(d) {
   const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
 
+  const notIndexedCount = (data.not_indexed || []).length;
   document.getElementById('kpi-grid').innerHTML = [
-    { icon:'📄', label:'Total Pages', value: fmtNum(ov.total_pages), sub:'All time', color:'' },
-    { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:`${fmtNum(ov.pages_indexed_today)} indexed`, color:'green' },
-    { icon:'📍', label:'Landing Pages', value: fmtNum(ov.landing_pages_published), sub:`of ${fmtNum(ov.landing_pages_total)} total`, color:'' },
-    { icon:'⏳', label:'Job Queue', value: fmtNum(ov.queue_length), sub:`${fmtNum(ov.failed_jobs)} failed`,
-      pill: ov.failed_jobs > 0 ? {text:`${ov.failed_jobs} failed`,color:'red'} : null, color: ov.failed_jobs > 0 ? 'red' : '' },
-    { icon:'⚠️', label:'SEO Issues', value: fmtNum(ov.seo_issues_open), sub:'Open issues',
-      pill: ov.seo_issues_open > 0 ? {text:'Needs review',color:'yellow'} : {text:'All clear ✓',color:'green'},
-      color: ov.seo_issues_open > 0 ? 'yellow' : 'green' },
+    // Publishing Stats
+    { icon:'📄', label:'Total Published', value: fmtNum(ov.total_pages), sub:'All time', color:'' },
+    { icon:'📅', label:'Published This Week', value: fmtNum(ov.pages_published_this_week), sub:'Last 7 days', color:'green' },
+    { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:'Today only', color: ov.pages_published_today > 0 ? 'green' : '' },
+    // Indexing Stats
+    { icon:'🔎', label:'Not Yet Indexed', value: notIndexedCount, sub:'Published 3+ days ago',
+      pill: notIndexedCount > 0 ? {text:'Needs attention',color:'yellow'} : {text:'All indexed ✓',color:'green'},
+      color: notIndexedCount > 0 ? 'yellow' : 'green' },
+    // Landing Pages
+    { icon:'📍', label:'Landing Pages', value: fmtNum(ov.landing_pages_total), sub:`${fmtNum(ov.lp_published_this_week||0)} this week`, color:'' },
+    // Search Console
     { icon:'👁️', label:'Impressions', value: fmtNum(gsc.impressions), sub:gsc.date_range||'28 days', color:'' },
     { icon:'🖱️', label:'GSC Clicks', value: fmtNum(gsc.clicks), sub:`CTR: ${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}`, color:'purple' },
+    { icon:'🏆', label:'Avg Position', value: gsc.avg_position||'—', sub:'Google SERP', color:'' },
+    // Analytics
     { icon:'📈', label:'Sessions', value: fmtNum(an.sessions), sub:`${fmtNum(an.organic_sessions)} organic`, color:'' },
     { icon:'🎯', label:'Conversions', value: fmtNum(an.conversions), sub:`Bounce: ${an.bounce_rate ? an.bounce_rate+'%' : '—'}`, color:'green' },
-    { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), sub:`${fmtNum(au.issues_found)} issues found`, color:'' },
-    { icon:'🔧', label:'Auto-Fixed', value: fmtNum(au.issues_fixed), sub:'This audit',
-      pill: au.issues_fixed > 0 ? {text:'Applied',color:'green'} : null, color:'' },
-    { icon:'🏆', label:'Avg Position', value: gsc.avg_position||'—', sub:'Google SERP', color:'' },
+    { icon:'⏳', label:'Job Queue', value: fmtNum(ov.queue_length), sub:`${fmtNum(ov.failed_jobs)} failed`,
+      pill: ov.failed_jobs > 0 ? {text:`${ov.failed_jobs} failed`,color:'red'} : null, color: ov.failed_jobs > 0 ? 'red' : '' },
+    { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), sub:`${fmtNum(au.issues_found)} issues`, color:'' },
   ].map(kpiCard).join('');
 
   document.getElementById('gsc-summary-panel').innerHTML = gsc.impressions != null ? `
@@ -965,11 +983,31 @@ function renderPages(list) {
     latestLabel = new Date(withDate[0].published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const weekAgoStr = new Date(Date.now() - 7*86400000).toISOString().slice(0, 10);
+  const publishedToday = list.filter(p => p.published_at && p.published_at.slice(0,10) === todayStr).length;
+  const publishedWeek  = list.filter(p => p.published_at && p.published_at.slice(0,10) >= weekAgoStr).length;
+
   document.getElementById('pages-kpis').innerHTML = [
-    { icon:'📝', label:'Total Posts (All Time)', value: list.length, color:'' },
-    { icon:'✅', label:'Latest Batch',            value: latestBatch, color: latestBatch > 0 ? 'green' : '', sub: latestBatch > 0 ? `Published ${latestLabel}` : 'No posts yet' },
-    { icon:'⏳', label:'Generating',              value: generating, color: generating > 0 ? 'yellow' : '' },
+    { icon:'📝', label:'Total Posts', value: list.length, sub:'All time', color:'' },
+    { icon:'📅', label:'This Week',   value: publishedWeek, sub:'Last 7 days', color: publishedWeek > 0 ? 'green' : '' },
+    { icon:'✅', label:'Today',       value: publishedToday, sub: latestBatch > 0 ? `Latest batch: ${latestBatch}` : 'No posts today', color: publishedToday > 0 ? 'green' : '' },
   ].map(kpiCard).join('');
+
+  // Published-but-not-indexed panel
+  const notIndexed = data.not_indexed || [];
+  const niCard = document.getElementById('not-indexed-card');
+  if (notIndexed.length > 0) {
+    niCard.style.display = '';
+    document.getElementById('not-indexed-tbody').innerHTML = notIndexed.slice(0, 20).map(p => `
+      <tr>
+        <td style="font-weight:500">${p.title || '—'}</td>
+        <td class="text-muted">${fmtDate(p.published_at)}</td>
+        <td>${p.url ? `<a href="${p.url}" target="_blank" class="view-link">View ↗</a>` : '<span class="text-muted">—</span>'}</td>
+      </tr>`).join('');
+  } else {
+    niCard.style.display = 'none';
+  }
 
   const statusMap   = { indexed:'green', published:'blue', content_generating:'yellow', publish_failed:'red', index_failed:'red', generation_failed:'red' };
   const statusLabel = { indexed:'Published ✓', published:'Published', content_generating:'Generating', publish_failed:'Publish Failed', index_failed:'Index Failed', generation_failed:'Generation Failed' };
@@ -996,10 +1034,15 @@ function renderLandingPages(list) {
     latestLabel = new Date(withDate[0].published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 
+  const lpTodayStr = new Date().toISOString().slice(0, 10);
+  const lpWeekAgoStr = new Date(Date.now() - 7*86400000).toISOString().slice(0, 10);
+  const lpToday = list.filter(p => p.published_at && p.published_at.slice(0,10) === lpTodayStr).length;
+  const lpWeek  = list.filter(p => p.published_at && p.published_at.slice(0,10) >= lpWeekAgoStr).length;
+
   document.getElementById('landing-kpis').innerHTML = [
-    { icon:'📍', label:'Total Pages (All Time)', value: list.length, color:'' },
-    { icon:'✅', label:'Latest Batch',            value: latestBatch, color: latestBatch > 0 ? 'green' : '', sub: latestBatch > 0 ? `Published ${latestLabel}` : 'No pages yet' },
-    { icon:'⏳', label:'Generating',              value: generating, color: generating > 0 ? 'yellow' : '' },
+    { icon:'📍', label:'Total Pages', value: list.length, sub:'All time', color:'' },
+    { icon:'📅', label:'This Week',   value: lpWeek, sub:'Last 7 days', color: lpWeek > 0 ? 'green' : '' },
+    { icon:'✅', label:'Today',       value: lpToday, sub: latestBatch > 0 ? `Latest batch: ${latestBatch}` : 'No pages today', color: lpToday > 0 ? 'green' : '' },
   ].map(kpiCard).join('');
 
   const statusMap   = { indexed:'green', published:'blue', generating:'yellow', pending:'gray', skipped_duplicate:'gray', generation_failed:'red' };

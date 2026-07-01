@@ -10,8 +10,12 @@ const tenMinuteCheckJob = require('./jobs/tenMinuteCheck');
 const hourlyCheckJob = require('./jobs/hourlyCheck');
 const analyticsSyncJob = require('./jobs/analyticsSync');
 const weeklyAuditJob = require('./jobs/weeklyAudit');
+const endOfDayReportJob = require('./jobs/endOfDayReport');
+const autoPushJob = require('./jobs/autoPush');
 const { runBlogBatch } = require('../workers/ContentWorker');
 const { runLandingPageBatch } = require('../workers/ContentWorker');
+
+const telegram = require('../services/TelegramService');
 
 const registeredTasks = [];
 
@@ -28,6 +32,10 @@ function schedule(name, cronExpr, fn) {
       logger.info(`Cron job completed: ${name}`);
     } catch (err) {
       logger.error(`Cron job failed: ${name}`, { error: err.message });
+      // Immediately alert Telegram on any cron job failure
+      await telegram.send(
+        `🚨 <b>Workflow Error: ${name}</b>\n\n❗ ${err.message}\n\n🕐 ${new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' })}`
+      ).catch(() => {});
     }
   }, { scheduled: false, timezone: 'America/Los_Angeles' });
 
@@ -59,6 +67,12 @@ function start() {
 
   // ── Daily 8:00 AM: send daily summary to Telegram ───────────────────────────
   schedule('Daily Summary', config.cron.dailySummary, () => dailySummaryJob.run());
+
+  // ── Every 60 minutes: auto-push changes to GitHub ───────────────────────────
+  schedule('Auto Push', '0 * * * *', () => autoPushJob.run());
+
+  // ── Daily 10:00 PM: end-of-day summary to Telegram group ────────────────────
+  schedule('End-of-Day Report', config.cron.endOfDayReport, () => endOfDayReportJob.run());
 
   // ── Every Monday 3:00 AM: full site audit + weekly report ───────────────────
   schedule('Weekly Audit', config.cron.weeklyAudit, () => weeklyAuditJob.run());

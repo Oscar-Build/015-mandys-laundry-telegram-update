@@ -211,6 +211,17 @@ async function fetchGA4() {
   }
 }
 
+function getDateBounds() {
+  const now  = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const weekAgo  = new Date(now - 7 * 86400000).toISOString().slice(0, 10);
+  return { todayStr, weekAgo };
+}
+
+function countByDate(list, field, since) {
+  return list.filter(p => p[field] && p[field].slice(0, 10) >= since).length;
+}
+
 async function main() {
   console.log('Generating data.json for GitHub Pages dashboard...');
 
@@ -222,19 +233,38 @@ async function main() {
   ]);
 
   const gsc = gscResult?.summary || null;
+  const { todayStr, weekAgo } = getDateBounds();
+
+  // Publishing stats
+  const publishedToday     = countByDate(posts, 'published_at', todayStr);
+  const publishedThisWeek  = countByDate(posts, 'published_at', weekAgo);
+  const lpPublishedToday   = countByDate(pages, 'published_at', todayStr);
+  const lpPublishedThisWeek = countByDate(pages, 'published_at', weekAgo);
+
+  // Published-but-not-indexed flag (posts older than 7 days still showing as 'indexed' is fine;
+  // here we flag posts published more than 3 days ago that are NOT indexed yet)
+  const threeDaysAgo = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
+  const notIndexed = posts.filter(p =>
+    p.published_at && p.published_at.slice(0, 10) <= threeDaysAgo && p.status !== 'indexed'
+  );
 
   const data = {
     generated_at: new Date().toISOString(),
     dashboard: {
       overview: {
-        total_pages:             posts.length,
-        pages_published_today:   0,
-        pages_indexed_today:     0,
-        failed_jobs:             0,
-        queue_length:            0,
-        seo_issues_open:         0,
-        landing_pages_total:     pages.length,
-        landing_pages_published: pages.length,
+        total_pages:              posts.length,
+        pages_published_today:    publishedToday,
+        pages_published_this_week: publishedThisWeek,
+        pages_indexed_today:      0,
+        pages_indexed_this_week:  0,
+        failed_jobs:              0,
+        queue_length:             0,
+        seo_issues_open:          notIndexed.length,
+        landing_pages_total:      pages.length,
+        landing_pages_published:  pages.length,
+        lp_published_today:       lpPublishedToday,
+        lp_published_this_week:   lpPublishedThisWeek,
+        not_indexed_count:        notIndexed.length,
       },
       gsc: gsc ? {
         impressions:  gsc.impressions,
@@ -255,6 +285,7 @@ async function main() {
     gsc_trend:     gscResult?.trend || [],
     pages:         posts,
     landing_pages: pages,
+    not_indexed:   notIndexed,
   };
 
   fs.writeFileSync(OUT, JSON.stringify(data, null, 2));
