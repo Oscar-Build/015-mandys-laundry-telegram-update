@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-01T16:19:05.217Z",
+  "generated_at": "2026-07-01T16:31:56.539Z",
   "dashboard": {
     "overview": {
       "total_pages": 100,
@@ -16,14 +16,7 @@
       "lp_published_this_week": 73,
       "not_indexed_count": 0
     },
-    "gsc": {
-      "impressions": 13122,
-      "clicks": 115,
-      "avg_ctr": "0.9",
-      "avg_position": "32.5",
-      "date_range": "28 days",
-      "synced_at": "2026-07-01T16:19:03.635Z"
-    },
+    "gsc": {},
     "analytics": {},
     "audit": {},
     "workers": {
@@ -38,73 +31,7 @@
   "trend": [],
   "seo_issues": [],
   "reports": [],
-  "gsc_trend": [
-    {
-      "date": "2026-06-29",
-      "impressions": 1359,
-      "clicks": 11
-    },
-    {
-      "date": "2026-06-28",
-      "impressions": 786,
-      "clicks": 8
-    },
-    {
-      "date": "2026-06-27",
-      "impressions": 734,
-      "clicks": 7
-    },
-    {
-      "date": "2026-06-26",
-      "impressions": 768,
-      "clicks": 2
-    },
-    {
-      "date": "2026-06-25",
-      "impressions": 1290,
-      "clicks": 9
-    },
-    {
-      "date": "2026-06-24",
-      "impressions": 1006,
-      "clicks": 2
-    },
-    {
-      "date": "2026-06-23",
-      "impressions": 631,
-      "clicks": 7
-    },
-    {
-      "date": "2026-06-22",
-      "impressions": 4159,
-      "clicks": 24
-    },
-    {
-      "date": "2026-06-21",
-      "impressions": 12196,
-      "clicks": 13
-    },
-    {
-      "date": "2026-06-20",
-      "impressions": 1685,
-      "clicks": 14
-    },
-    {
-      "date": "2026-06-19",
-      "impressions": 845,
-      "clicks": 6
-    },
-    {
-      "date": "2026-06-18",
-      "impressions": 926,
-      "clicks": 13
-    },
-    {
-      "date": "2026-06-17",
-      "impressions": 1000,
-      "clicks": 13
-    }
-  ],
+  "gsc_trend": [],
   "pages": [
     {
       "id": "7255",
