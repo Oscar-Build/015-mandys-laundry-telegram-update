@@ -772,16 +772,18 @@ function kpiCard({ icon, label, value, sub, pill, color }) {
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
-function renderDashboard(d) {
+function renderDashboard(d, pagesList) {
   const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
 
-  const notIndexedCount = (data.not_indexed || []).length;
-  const totalSitePages = (ov.total_pages || 0) + (ov.landing_pages_total || 0);
-  const totalIndexed      = data.pages ? data.pages.filter(p => p.status === 'indexed').length : 0;
+  const list = pagesList || [];
   const todayIso          = new Date().toISOString().slice(0, 10);
   const weekAgoIso        = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
-  const indexedThisWeek   = data.pages ? data.pages.filter(p => p.status === 'indexed' && p.indexed_at && p.indexed_at.slice(0,10) >= weekAgoIso).length : 0;
-  const indexedToday      = data.pages ? data.pages.filter(p => p.status === 'indexed' && p.indexed_at && p.indexed_at.slice(0,10) === todayIso).length : 0;
+  const threeDaysAgoIso   = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
+  const notIndexedCount   = list.filter(p => p.published_at && p.published_at.slice(0,10) <= threeDaysAgoIso && p.status !== 'indexed').length;
+  const totalSitePages = (ov.total_pages || 0) + (ov.landing_pages_total || 0);
+  const totalIndexed      = list.filter(p => p.status === 'indexed').length;
+  const indexedThisWeek   = list.filter(p => p.status === 'indexed' && p.indexed_at && p.indexed_at.slice(0,10) >= weekAgoIso).length;
+  const indexedToday      = list.filter(p => p.status === 'indexed' && p.indexed_at && p.indexed_at.slice(0,10) === todayIso).length;
 
   document.getElementById('kpi-grid').innerHTML = [
     // Publishing Stats
@@ -1003,7 +1005,8 @@ function renderPages(list) {
   ].map(kpiCard).join('');
 
   // Published-but-not-indexed panel
-  const notIndexed = data.not_indexed || [];
+  const threeDaysAgoStr = new Date(Date.now() - 3 * 86400000).toISOString().slice(0, 10);
+  const notIndexed = list.filter(p => p.published_at && p.published_at.slice(0,10) <= threeDaysAgoStr && p.status !== 'indexed');
   const niCard = document.getElementById('not-indexed-card');
   if (notIndexed.length > 0) {
     niCard.style.display = '';
@@ -1193,7 +1196,7 @@ async function loadAll() {
 
     if (dash.status === 'fulfilled') {
       dashData = dash.value;
-      renderDashboard(dashData);
+      renderDashboard(dashData, pages.status === 'fulfilled' ? pages.value : []);
       renderWorkers(dashData);
       if (dashData.scheduler) {
         renderSchedule(dashData.scheduler, 'schedule-list');
