@@ -252,4 +252,4 @@ async function runQuickAudit() {
   return results;
 }
 
-module.exports = { runFullAudit, runQuickAudit, checkPageSpeed, checkBrokenLinks, getSitemapUrls, auditHTML };
+module.exports = { runFullAudit, runQuickAudit, checkPageSpeed, checkBrokenLinks, getSitemapUrls, auditHTML, fetchPage };

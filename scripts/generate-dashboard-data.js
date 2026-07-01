@@ -11,6 +11,7 @@ require('dotenv').config();
 const fs    = require('fs');
 const path  = require('path');
 const axios = require('axios');
+const { fetchPage, auditHTML } = require('../src/services/SEOAuditService');
 
 const WP_API  = process.env.WORDPRESS_API_URL;
 const WP_USER = process.env.WORDPRESS_USERNAME;
@@ -222,6 +223,58 @@ function countByDate(list, field, since) {
   return list.filter(p => p[field] && p[field].slice(0, 10) >= since).length;
 }
 
+// Builds a per-day published/indexed trend from the WP posts + pages we already fetched
+// (no DB access available on the GitHub Actions runner, so this is reconstructed live).
+function computeTrend(posts, pages) {
+  const byDate = {};
+  const bump = (dateStr, field) => {
+    if (!dateStr) return;
+    const d = dateStr.slice(0, 10);
+    if (!byDate[d]) byDate[d] = { date: d, pages_published: 0, pages_indexed: 0 };
+    byDate[d][field]++;
+  };
+  for (const item of posts.concat(pages)) {
+    bump(item.published_at, 'pages_published');
+    if (item.status === 'indexed') bump(item.indexed_at, 'pages_indexed');
+  }
+  return Object.values(byDate).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 14);
+}
+
+// Lightweight live SEO audit — no DB access on the runner, so this crawls a small
+// sample of real pages directly and runs the same HTML checks as the full audit.
+async function runLightAudit(posts, pages) {
+  // SITE_URL may hold a GSC "sc-domain:" property identifier, not a fetchable URL — skip it here.
+  const candidate = process.env.WORDPRESS_SITE_URL || '';
+  const siteUrl = /^https?:\/\//.test(candidate) ? candidate : 'https://mandyslaundry.com';
+  const sample = [siteUrl, ...posts.slice(0, 10).map(p => p.url), ...pages.slice(0, 5).map(p => p.url)]
+    .filter(Boolean);
+
+  let pagesAudited = 0;
+  const allIssues = [];
+  for (const url of sample) {
+    try {
+      const { status, html } = await fetchPage(url);
+      if (status < 400 && typeof html === 'string') {
+        const { issues } = auditHTML(url, html);
+        allIssues.push(...issues.map(i => ({ ...i, status: 'open', detected_at: new Date().toISOString() })));
+        pagesAudited++;
+      }
+    } catch (err) {
+      console.warn('Audit fetch failed:', url, err.message);
+    }
+    await new Promise(r => setTimeout(r, 300));
+  }
+
+  return {
+    pages_audited: pagesAudited,
+    issues_found: allIssues.length,
+    issues_fixed: 0,
+    completed_at: new Date().toISOString(),
+    status: 'completed',
+    issues: allIssues,
+  };
+}
+
 async function main() {
   console.log('Generating data.json for GitHub Pages dashboard...');
 
@@ -248,6 +301,9 @@ async function main() {
     p.published_at && p.published_at.slice(0, 10) <= threeDaysAgo && p.status !== 'indexed'
   );
 
+  const trend = computeTrend(posts, pages);
+  const audit = await runLightAudit(posts, pages);
+
   const data = {
     generated_at: new Date().toISOString(),
     dashboard: {
@@ -259,7 +315,7 @@ async function main() {
         pages_indexed_this_week:  0,
         failed_jobs:              0,
         queue_length:             0,
-        seo_issues_open:          notIndexed.length,
+        seo_issues_open:          audit.issues_found,
         landing_pages_total:      pages.length,
         landing_pages_published:  pages.length,
         lp_published_today:       lpPublishedToday,
@@ -275,12 +331,12 @@ async function main() {
         synced_at:    gsc.synced_at,
       } : {},
       analytics: ga4 || {},
-      audit: {},
+      audit,
       workers: { content: 'running', seo: 'running', analytics: 'running', monitoring: 'running', queue: 'running' },
       scheduler: null,
     },
-    trend:         [],
-    seo_issues:    [],
+    trend,
+    seo_issues:    audit.issues,
     reports:       [],
     gsc_trend:     gscResult?.trend || [],
     pages:         posts,
@@ -302,6 +358,8 @@ async function main() {
   } else {
     console.log('  GA4: not connected');
   }
+  console.log(`  Trend days:    ${trend.length}`);
+  console.log(`  Audit:         ${audit.pages_audited} pages scanned, ${audit.issues_found} issues found`);
 }
 
 main().catch(err => {
