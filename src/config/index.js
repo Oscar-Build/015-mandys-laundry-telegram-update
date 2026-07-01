@@ -89,6 +89,11 @@ const config = {
     targetServices: optional('SEO_TARGET_SERVICES', 'laundry pickup,dry cleaning,wash and fold,commercial laundry')
       .split(',').map(s => s.trim()).filter(Boolean),
     targetState: optional('SEO_TARGET_STATE', 'CA'),
+    // High-value generic "near me" queries ranking too low to get clicks (GSC: "laundromat near
+    // me" at position 16.5, "laundry service near me" at position 25.5) — wove into every new
+    // page's keywords/content/internal links to push rankings up over time.
+    priorityKeywords: optional('SEO_PRIORITY_KEYWORDS', 'laundromat near me,laundry service near me')
+      .split(',').map(k => k.trim()).filter(Boolean),
   },
 
   analytics: {

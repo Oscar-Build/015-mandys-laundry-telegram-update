@@ -3,6 +3,9 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const config = require('../config');
 const logger = require('./Logger');
+const { sanitizeInternalLinks } = require('./linkSanitizer');
+
+const ALLOWED_HREFS = ['/', '/wash-and-fold', '/dry-cleaning', '/pickup-delivery', '/pricing', '/contact'];
 
 let client;
 
@@ -20,11 +23,24 @@ async function generateBlogPost(topic) {
   const c = getClient();
   logger.info('Generating blog post', { topic, model: config.anthropic.model });
 
+  const priorityKeywords = config.seo.priorityKeywords;
+
   const prompt = `You are an expert SEO content strategist for Mandy's Laundry, a premium laundry and dry cleaning service.
 
 Write a complete, SEO-optimized blog post about: "${topic}"
 Niche: ${config.anthropic.niche}
 Business: Mandy's Laundry
+
+SEO priority: these high-value phrases currently rank too low to get clicks — naturally work at
+least one of them into the meta description and the body content (only where it genuinely fits
+the topic, never forced): ${priorityKeywords.join(', ')}
+
+Internal linking is required, not optional: the "content" HTML must include 3-5 inline <a href="...">
+links with descriptive anchor text, woven naturally into sentences (not a bare list at the end).
+Each href must appear only ONCE in the whole article — no repeated links. Include exactly one link
+to href="/" using anchor text containing one of the priority phrases above (e.g. <a href="/">laundromat
+near me</a>) wherever it fits the topic naturally. Pick 2-4 more DIFFERENT hrefs from: /wash-and-fold,
+/dry-cleaning, /pickup-delivery, /pricing, /contact.
 
 Return ONLY a JSON object with these exact keys:
 {
@@ -33,7 +49,7 @@ Return ONLY a JSON object with these exact keys:
   "metaTitle": "Meta title tag (55-60 chars, primary keyword near front)",
   "metaDescription": "Compelling meta description with CTA (145-155 chars)",
   "primaryKeyword": "main target keyword phrase",
-  "secondaryKeywords": ["keyword2", "keyword3", "keyword4", "keyword5"],
+  "secondaryKeywords": ["keyword2", "keyword3", "keyword4", "keyword5 (include a priority phrase above if relevant)"],
   "entities": ["Named entity 1", "Named entity 2", "Named entity 3"],
   "headings": [
     {"level": "h2", "text": "Introduction or What is heading"},
@@ -43,8 +59,9 @@ Return ONLY a JSON object with these exact keys:
     {"level": "h2", "text": "Why choose Mandy's Laundry heading"},
     {"level": "h2", "text": "Conclusion heading"}
   ],
-  "content": "Full HTML blog post (1200-1800 words). Use <h2>, <h3>, <p>, <ul>, <ol>, <strong>, <em> tags. Naturally include the primary keyword 4-6 times. Write in a friendly, helpful, in-depth tone for homeowners. Cover the topic thoroughly with actionable tips, examples, and details.",
+  "content": "Full HTML blog post (1200-1800 words) INCLUDING the required inline <a href> internal links described above. Use <h2>, <h3>, <p>, <ul>, <ol>, <strong>, <em> tags. Naturally include the primary keyword 4-6 times. Write in a friendly, helpful, in-depth tone for homeowners. Cover the topic thoroughly with actionable tips, examples, and details.",
   "internalLinks": [
+    {"text": "laundromat near me", "href": "/"},
     {"text": "wash and fold service", "href": "/wash-and-fold"},
     {"text": "dry cleaning near you", "href": "/dry-cleaning"},
     {"text": "laundry pickup and delivery", "href": "/pickup-delivery"},
@@ -69,6 +86,8 @@ Return ONLY a JSON object with these exact keys:
 
   const parsed = JSON.parse(jsonMatch[0]);
   if (!parsed.title || !parsed.content) throw new Error('AI response missing required blog fields');
+
+  parsed.content = sanitizeInternalLinks(parsed.content, ALLOWED_HREFS);
 
   const siteUrl = config.google.siteUrl;
   const articleSchema = {
@@ -105,6 +124,9 @@ Return ONLY a JSON object with these exact keys:
  */
 async function generateTopicIdeas(count = 5) {
   const c = getClient();
+  const priorityKeywords = config.seo.priorityKeywords;
+  const priorityCount = Math.max(1, Math.round(count * 0.2));
+
   const message = await c.messages.create({
     model: config.anthropic.model,
     max_tokens: 600,
@@ -114,7 +136,11 @@ async function generateTopicIdeas(count = 5) {
 Target long-tail keywords with informational or local SEO intent.
 Niche: ${config.anthropic.niche}
 Return ONLY a JSON array of strings: ["topic 1", "topic 2", ...]
-Include: how-to guides, comparison posts, local topics, problem-solving, fabric care tips.`,
+Include: how-to guides, comparison posts, local topics, problem-solving, fabric care tips.
+
+Exactly ${priorityCount} of the topics must directly target one of these underperforming
+high-value phrases as their core subject (e.g. "How to Choose a Laundromat Near Me: 7 Things
+to Check" or "Laundry Service Near Me vs Doing It Yourself: Real Cost Breakdown"): ${priorityKeywords.join(', ')}`,
     }],
   });
 

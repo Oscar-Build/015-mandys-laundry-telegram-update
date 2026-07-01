@@ -3,6 +3,9 @@
 const Anthropic = require('@anthropic-ai/sdk');
 const config = require('../config');
 const logger = require('./Logger');
+const { sanitizeInternalLinks } = require('./linkSanitizer');
+
+const ALLOWED_HREFS = ['/', '/wash-and-fold', '/dry-cleaning', '/commercial-laundry', '/pricing', '/contact'];
 
 let client;
 
@@ -20,6 +23,7 @@ function getClient() {
 async function generateLandingPage({ city, state, keyword, serviceType }) {
   const c = getClient();
   const location = `${city}, ${state}`;
+  const priorityKeywords = config.seo.priorityKeywords;
   logger.info('Generating landing page', { city, state, keyword, serviceType });
 
   const prompt = `You are an expert local SEO content writer for Mandy's Laundry, a premium laundry and dry cleaning service.
@@ -28,6 +32,17 @@ Generate a complete, SEO-optimized landing page for: "${keyword} in ${location}"
 Service Type: ${serviceType}
 Business: Mandy's Laundry
 
+SEO priority: these high-value generic phrases currently rank too low to get clicks — naturally
+work one of them into the meta description and body content once (only where it fits, never
+forced): ${priorityKeywords.join(', ')}
+
+Internal linking is required, not optional: the "content" HTML must include 3-5 inline <a href="...">
+links with descriptive anchor text, woven naturally into sentences (not a bare list at the end).
+Each href must appear only ONCE in the whole page — no repeated links. Include exactly one link to
+href="/" using anchor text containing one of the priority phrases above (e.g. <a href="/">laundry
+service near me</a>). Pick 2-4 more DIFFERENT hrefs from: /wash-and-fold, /dry-cleaning,
+/commercial-laundry, /pricing, /contact.
+
 Return ONLY a JSON object with these exact keys:
 {
   "title": "SEO page title including city and service keyword (55-60 chars)",
@@ -35,7 +50,7 @@ Return ONLY a JSON object with these exact keys:
   "metaTitle": "Meta title (55-60 chars, include primary keyword and city)",
   "metaDescription": "Compelling meta description (145-155 chars, include CTA and city)",
   "h1": "Page H1 headline with city and service (compelling, keyword-rich)",
-  "content": "Full HTML page content (1200-1800 words). Use <h2>, <h3>, <p>, <ul>, <strong> tags. Mention ${city} naturally 5-8 times. Cover: what we offer, why choose us, our process, benefits, pricing overview, service areas near ${city}, customer testimonials section placeholder, and a clear call to action.",
+  "content": "Full HTML page content (1200-1800 words) INCLUDING the required inline <a href> internal links described above. Use <h2>, <h3>, <p>, <ul>, <strong> tags. Mention ${city} naturally 5-8 times. Cover: what we offer, why choose us, our process, benefits, pricing overview, service areas near ${city}, customer testimonials section placeholder, and a clear call to action.",
   "faqs": [
     {"question": "FAQ about ${serviceType} in ${city}?", "answer": "Detailed helpful answer."},
     {"question": "How much does ${serviceType} cost in ${city}?", "answer": "Pricing answer."},
@@ -45,6 +60,7 @@ Return ONLY a JSON object with these exact keys:
   ],
   "keywords": ["${keyword} ${city}", "${serviceType} ${city}", "${serviceType} near me", "${city} laundry service", "best ${serviceType} ${city} ${state}"],
   "internalLinks": [
+    {"text": "laundry service near me", "href": "/"},
     {"text": "our dry cleaning services", "href": "/dry-cleaning"},
     {"text": "wash and fold pickup", "href": "/wash-and-fold"},
     {"text": "commercial laundry services", "href": "/commercial-laundry"},
@@ -70,6 +86,8 @@ Return ONLY a JSON object with these exact keys:
 
   const parsed = JSON.parse(jsonMatch[0]);
   if (!parsed.title || !parsed.content) throw new Error('AI response missing required landing page fields');
+
+  parsed.content = sanitizeInternalLinks(parsed.content, ALLOWED_HREFS);
 
   const siteUrl = config.google.siteUrl;
 
