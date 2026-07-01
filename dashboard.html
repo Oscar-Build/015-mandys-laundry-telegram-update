@@ -755,12 +755,14 @@ function kpiCard({ icon, label, value, sub, pill, color }) {
 function renderDashboard(d) {
   const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
 
+  const totalSitePages = (ov.total_pages || 0) + (ov.landing_pages_total || 0);
   document.getElementById('kpi-grid').innerHTML = [
-    { icon:'📄', label:'Total Pages', value: fmtNum(ov.total_pages), sub:'All time', color:'' },
+    { icon:'📄', label:'Total Pages (Site)', value: fmtNum(totalSitePages), sub:`${fmtNum(ov.total_pages)} blog · ${fmtNum(ov.landing_pages_total)} landing`, color:'' },
     { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:`${fmtNum(ov.pages_indexed_today)} indexed`, color:'green' },
-    { icon:'📍', label:'Landing Pages', value: fmtNum(ov.landing_pages_published), sub:`of ${fmtNum(ov.landing_pages_total)} total`, color:'' },
-    { icon:'⏳', label:'Job Queue', value: fmtNum(ov.queue_length), sub:`${fmtNum(ov.failed_jobs)} failed`,
-      pill: ov.failed_jobs > 0 ? {text:`${ov.failed_jobs} failed`,color:'red'} : null, color: ov.failed_jobs > 0 ? 'red' : '' },
+    { icon:'🗺️', label:'Landing Pages This Week', value: fmtNum(ov.landing_pages_published_this_week), sub:`${fmtNum(ov.landing_pages_published)} total published`, color:'' },
+    { icon:'📊', label:'Total Indexed', value: fmtNum(ov.pages_indexed_total), sub:'All time', color:'green' },
+    { icon:'📅', label:'Indexed This Week', value: fmtNum(ov.pages_indexed_this_week), sub:'Last 7 days', color:'' },
+    { icon:'🕐', label:'Indexed Today', value: fmtNum(ov.pages_indexed_today), sub:'So far today', color:'' },
     { icon:'⚠️', label:'SEO Issues', value: fmtNum(ov.seo_issues_open), sub:'Open issues',
       pill: ov.seo_issues_open > 0 ? {text:'Needs review',color:'yellow'} : {text:'All clear ✓',color:'green'},
       color: ov.seo_issues_open > 0 ? 'yellow' : 'green' },
@@ -768,9 +770,6 @@ function renderDashboard(d) {
     { icon:'🖱️', label:'GSC Clicks', value: fmtNum(gsc.clicks), sub:`CTR: ${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}`, color:'purple' },
     { icon:'📈', label:'Sessions', value: fmtNum(an.sessions), sub:`${fmtNum(an.organic_sessions)} organic`, color:'' },
     { icon:'🎯', label:'Conversions', value: fmtNum(an.conversions), sub:`Bounce: ${an.bounce_rate ? an.bounce_rate+'%' : '—'}`, color:'green' },
-    { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), sub:`${fmtNum(au.issues_found)} issues found`, color:'' },
-    { icon:'🔧', label:'Auto-Fixed', value: fmtNum(au.issues_fixed), sub:'This audit',
-      pill: au.issues_fixed > 0 ? {text:'Applied',color:'green'} : null, color:'' },
     { icon:'🏆', label:'Avg Position', value: gsc.avg_position||'—', sub:'Google SERP', color:'' },
   ].map(kpiCard).join('');
 

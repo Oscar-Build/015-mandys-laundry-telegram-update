@@ -520,10 +520,14 @@ function getLastHealthCheck(service) {
 function getDashboardStats() {
   const d = getDb();
   const today = new Date().toISOString().slice(0, 10);
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
   return {
     total_pages: d.prepare('SELECT COUNT(*) as n FROM pages').get().n,
     pages_published_today: d.prepare("SELECT COUNT(*) as n FROM pages WHERE DATE(published_at) = ?").get(today).n,
     pages_indexed_today: d.prepare("SELECT COUNT(*) as n FROM pages WHERE DATE(indexed_at) = ?").get(today).n,
+    pages_indexed_total: d.prepare("SELECT COUNT(*) as n FROM pages WHERE status = 'indexed'").get().n,
+    pages_indexed_this_week: d.prepare("SELECT COUNT(*) as n FROM pages WHERE DATE(indexed_at) >= ?").get(weekAgo).n,
+    landing_pages_published_this_week: d.prepare("SELECT COUNT(*) as n FROM landing_pages WHERE DATE(updated_at) >= ? AND status IN ('published','indexed')").get(weekAgo).n,
     failed_jobs: d.prepare("SELECT COUNT(*) as n FROM pages WHERE status IN ('publish_failed','index_failed','generation_failed')").get().n,
     queue_length: d.prepare("SELECT COUNT(*) as n FROM jobs WHERE status = 'pending'").get().n,
     metrics_today: getTodayMetrics(),
