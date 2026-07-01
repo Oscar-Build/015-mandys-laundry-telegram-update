@@ -776,17 +776,28 @@ function renderDashboard(d) {
   const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
 
   const notIndexedCount = (data.not_indexed || []).length;
+  const totalSitePages = (ov.total_pages || 0) + (ov.landing_pages_total || 0);
+  const totalIndexed      = data.pages ? data.pages.filter(p => p.status === 'indexed').length : 0;
+  const todayIso          = new Date().toISOString().slice(0, 10);
+  const weekAgoIso        = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  const indexedThisWeek   = data.pages ? data.pages.filter(p => p.status === 'indexed' && p.indexed_at && p.indexed_at.slice(0,10) >= weekAgoIso).length : 0;
+  const indexedToday      = data.pages ? data.pages.filter(p => p.status === 'indexed' && p.indexed_at && p.indexed_at.slice(0,10) === todayIso).length : 0;
+
   document.getElementById('kpi-grid').innerHTML = [
     // Publishing Stats
-    { icon:'📄', label:'Total Published', value: fmtNum(ov.total_pages), sub:'All time', color:'' },
+    { icon:'📄', label:'Total Pages (Site)', value: fmtNum(totalSitePages), sub:'Blog posts + Landing pages', color:'' },
     { icon:'📅', label:'Published This Week', value: fmtNum(ov.pages_published_this_week), sub:'Last 7 days', color:'green' },
     { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:'Today only', color: ov.pages_published_today > 0 ? 'green' : '' },
-    // Indexing Stats
-    { icon:'🔎', label:'Not Yet Indexed', value: notIndexedCount, sub:'Published 3+ days ago',
-      pill: notIndexedCount > 0 ? {text:'Needs attention',color:'yellow'} : {text:'All indexed ✓',color:'green'},
-      color: notIndexedCount > 0 ? 'yellow' : 'green' },
     // Landing Pages
-    { icon:'📍', label:'Landing Pages', value: fmtNum(ov.landing_pages_total), sub:`${fmtNum(ov.lp_published_this_week||0)} this week`, color:'' },
+    { icon:'📍', label:'Landing Pages This Week', value: fmtNum(ov.lp_published_this_week || 0), sub:`${fmtNum(ov.landing_pages_total)} total`, color: (ov.lp_published_this_week || 0) > 0 ? 'green' : '' },
+    // Indexing Stats
+    { icon:'🔎', label:'Total Pages Indexed', value: fmtNum(totalIndexed), sub:'All time', color:'' },
+    { icon:'📊', label:'Indexed This Week', value: fmtNum(indexedThisWeek), sub:'Last 7 days', color: indexedThisWeek > 0 ? 'green' : '' },
+    { icon:'⚡', label:'Indexed Today', value: fmtNum(indexedToday), sub:'Today only', color: indexedToday > 0 ? 'green' : '' },
+    // Not indexed warning
+    { icon:'⚠️', label:'Not Yet Indexed', value: notIndexedCount, sub:'Published 3+ days ago',
+      pill: notIndexedCount > 0 ? {text:'Needs attention',color:'yellow'} : {text:'All clear ✓',color:'green'},
+      color: notIndexedCount > 0 ? 'yellow' : 'green' },
     // Search Console
     { icon:'👁️', label:'Impressions', value: fmtNum(gsc.impressions), sub:gsc.date_range||'28 days', color:'' },
     { icon:'🖱️', label:'GSC Clicks', value: fmtNum(gsc.clicks), sub:`CTR: ${gsc.avg_ctr ? gsc.avg_ctr+'%' : '—'}`, color:'purple' },
@@ -794,9 +805,6 @@ function renderDashboard(d) {
     // Analytics
     { icon:'📈', label:'Sessions', value: fmtNum(an.sessions), sub:`${fmtNum(an.organic_sessions)} organic`, color:'' },
     { icon:'🎯', label:'Conversions', value: fmtNum(an.conversions), sub:`Bounce: ${an.bounce_rate ? an.bounce_rate+'%' : '—'}`, color:'green' },
-    { icon:'⏳', label:'Job Queue', value: fmtNum(ov.queue_length), sub:`${fmtNum(ov.failed_jobs)} failed`,
-      pill: ov.failed_jobs > 0 ? {text:`${ov.failed_jobs} failed`,color:'red'} : null, color: ov.failed_jobs > 0 ? 'red' : '' },
-    { icon:'🔍', label:'Pages Audited', value: fmtNum(au.pages_audited), sub:`${fmtNum(au.issues_found)} issues`, color:'' },
   ].map(kpiCard).join('');
 
   document.getElementById('gsc-summary-panel').innerHTML = gsc.impressions != null ? `
