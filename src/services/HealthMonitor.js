@@ -47,7 +47,7 @@ async function checkTelegramBot() {
 async function checkWordPressAPI() {
   if (!config.wordpress.apiUrl) return { ok: null, message: 'WordPress URL not configured' };
   try {
-    await axios.get(config.wordpress.apiUrl, { timeout: 10000 });
+    await axios.get(config.wordpress.apiUrl, { timeout: 20000 });
     return { ok: true, message: 'WordPress API responding' };
   } catch (err) {
     if (err.response && err.response.status === 401) {

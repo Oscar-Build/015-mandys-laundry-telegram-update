@@ -297,6 +297,24 @@ async function notifyTrafficSpike({ spikePercent, previous, current }) {
 
 // ── Batch / report notifications ─────────────────────────────────────────────
 
+async function sendTodayStats() {
+  const m = db.getTodayMetrics();
+  const pad = n => String(n).padEnd(4);
+  const msg = [
+    `━━━━━━━━━━━━━━━━━━`,
+    `📊 <b>Today's Stats</b>`,
+    `  📝 Created:    ${pad(m.pages_created || 0)}`,
+    `  ✅ Published:  ${pad(m.pages_published || 0)}`,
+    `  📈 Indexed:    ${pad(m.pages_indexed || 0)}`,
+    ``,
+    `━━━━━━━━━━━━━━━━━━`,
+    `📊 ${link(DASHBOARD_URL, 'View Live Dashboard →')}`,
+    ``,
+    `Mandy's Laundry SEO Automation`,
+  ].join('\n');
+  await send(msg);
+}
+
 async function sendBatchSummary(type, total, passed) {
   const failed = total - passed;
   const rate = total > 0 ? Math.round((passed / total) * 100) : 0;
@@ -473,7 +491,7 @@ module.exports = {
   // Analytics
   notifyTrafficDrop, notifyTrafficSpike,
   // Batch / Reports
-  sendBatchSummary, sendDailyReport, sendWeeklyReport,
+  sendTodayStats, sendBatchSummary, sendDailyReport, sendWeeklyReport,
   // Health
   notifyHealthAlert, notifyHealthRecovered,
   // System

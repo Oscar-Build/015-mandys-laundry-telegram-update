@@ -6,22 +6,32 @@ const scheduler = require('../scheduler/Scheduler');
 const axios = require('axios');
 const config = require('../config');
 
+const WP_COUNTS_CACHE_MS = 5 * 60 * 1000; // mandyslaundry.com's REST API regularly takes 10s+ to respond; avoid hammering it every 30s dashboard poll
+let wpCountsCache = { data: null, fetchedAt: 0 };
+
 async function fetchWPCounts() {
   const { apiUrl, username, appPassword } = config.wordpress || {};
   if (!apiUrl || !username || !appPassword) return null;
+
+  if (wpCountsCache.data && Date.now() - wpCountsCache.fetchedAt < WP_COUNTS_CACHE_MS) {
+    return wpCountsCache.data;
+  }
+
   const auth = Buffer.from(`${username}:${appPassword}`).toString('base64');
   const headers = { Authorization: `Basic ${auth}` };
   try {
     const [postsRes, pagesRes] = await Promise.all([
-      axios.get(`${apiUrl}/posts`, { params: { per_page: 1, status: 'publish' }, headers, timeout: 8000 }),
-      axios.get(`${apiUrl}/pages`, { params: { per_page: 1, status: 'publish' }, headers, timeout: 8000 }),
+      axios.get(`${apiUrl}/posts`, { params: { per_page: 1, status: 'publish' }, headers, timeout: 20000 }),
+      axios.get(`${apiUrl}/pages`, { params: { per_page: 1, status: 'publish' }, headers, timeout: 20000 }),
     ]);
     const posts = parseInt(postsRes.headers['x-wp-total'] || '0', 10);
     const pages = parseInt(pagesRes.headers['x-wp-total'] || '0', 10);
-    return { posts, pages, total: posts + pages };
+    const data = { posts, pages, total: posts + pages };
+    wpCountsCache = { data, fetchedAt: Date.now() };
+    return data;
   } catch (err) {
     logger.warn('Could not fetch WP counts live', { error: err.message });
-    return null;
+    return wpCountsCache.data; // serve stale cache rather than nothing
   }
 }
 

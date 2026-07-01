@@ -86,11 +86,6 @@ async function runLandingPageWorkflow({ city, state, keyword, serviceType }) {
       published_at: new Date().toISOString(),
     });
     db.incrementMetric('pages_published');
-
-    await telegram.notifyLandingPagePublished({
-      id: pageId, city, state, serviceType,
-      title: pageData.title, url: publishResult.url,
-    });
     logger.info('Landing page published', { city, url: publishResult.url });
   } catch (err) {
     db.updateLandingPage(pageId, { status: 'publish_failed', error: err.message });
@@ -153,7 +148,8 @@ async function runLandingPageBatch() {
   }
 
   const passed = results.filter(r => r.success).length;
-  await telegram.sendBatchSummary('Landing Pages', batch.length, passed);
+  logger.info('Landing page batch complete', { total: batch.length, passed });
+  await telegram.sendTodayStats();
   return results;
 }
 
@@ -251,7 +247,6 @@ async function runPublishBlogPost(page) {
     });
     db.updateAvgMetric('avg_publish_ms', pubMs);
     db.incrementMetric('pages_published');
-    await telegram.notifyPagePublished({ ...db.getPage(page.id), duration_ms: pubMs });
   } catch (err) {
     db.updatePage(page.id, { status: 'publish_failed', error: err.message });
     return { success: false, error: err.message };
@@ -286,7 +281,7 @@ async function runPublishBatch() {
     await retry.sleep(3000);
   }
 
-  await telegram.sendBatchSummary('Published', pages.length, passed);
+  await telegram.sendTodayStats();
   return { total: pages.length, passed };
 }
 
@@ -304,11 +299,9 @@ async function runIndexBatch() {
   let passed = 0;
   for (const page of pages) {
     try {
-      await telegram.notifyIndexingSubmitted(db.getPage(page.id) || page);
       await indexer.submitForIndexing(page.url);
       db.updatePage(page.id, { status: 'indexed', indexed_at: new Date().toISOString() });
       db.incrementMetric('pages_indexed');
-      await telegram.notifyPageIndexed(db.getPage(page.id) || page);
       passed++;
     } catch (err) {
       db.updatePage(page.id, { status: 'index_failed', error: err.message });
@@ -317,6 +310,7 @@ async function runIndexBatch() {
   }
 
   logger.info('Index batch complete', { total: pages.length, passed });
+  if (passed > 0) await telegram.sendTodayStats();
   return { total: pages.length, passed };
 }
 
