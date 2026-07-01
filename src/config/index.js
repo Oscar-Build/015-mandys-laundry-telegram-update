@@ -69,6 +69,7 @@ const config = {
     hourlyCheck: optional('HOURLY_CHECK_CRON', '0 * * * *'),
     analyticsSync: optional('ANALYTICS_SYNC_CRON', '0 7 * * *'),
     weeklyAudit: optional('WEEKLY_AUDIT_CRON', '0 3 * * 1'),
+    seoAutoFix: optional('SEO_AUTOFIX_CRON', '0 */3 * * *'),
   },
 
   retry: {

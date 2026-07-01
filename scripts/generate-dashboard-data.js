@@ -277,6 +277,55 @@ async function runLightAudit(posts, pages) {
   };
 }
 
+// Builds a report entry in the same shape ReportService.generateDailyReport() saves locally,
+// so renderReports() in index.html renders it identically on the static dashboard.
+function buildDailyReport({ todayStr, publishedToday, lpPublishedToday, posts, pages, gsc, ga4, audit }) {
+  const indexedToday = posts.filter(p => p.indexed_at && p.indexed_at.slice(0, 10) === todayStr).length;
+  const pct = (n, d) => d > 0 ? `${Math.round((n / d) * 100)}%` : 'N/A';
+
+  return {
+    type: 'daily',
+    period: todayStr,
+    generated_at: new Date().toISOString(),
+    title: `Daily SEO Report — ${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`,
+    summary: {
+      date: todayStr,
+      pagesCreated: publishedToday,
+      pagesPublished: publishedToday,
+      pagesIndexed: indexedToday,
+      pagesFailed: 0,
+      publishSuccessRate: pct(publishedToday, publishedToday),
+      indexSuccessRate: pct(indexedToday, publishedToday),
+      landingPagesTotal: pages.length,
+      landingPagesPublished: lpPublishedToday,
+      seoIssuesOpen: audit.issues_found,
+      seoIssuesResolvedToday: 0,
+      auditPagesScanned: audit.pages_audited,
+      auditIssuesFound: audit.issues_found,
+      auditLastRun: audit.completed_at,
+      gscImpressions: gsc?.impressions ?? null,
+      gscClicks: gsc?.clicks ?? null,
+      gscAvgCtr: gsc?.avg_ctr ?? null,
+      gscAvgPosition: gsc?.avg_position ?? null,
+      analyticsSessions: ga4 && !ga4.error ? ga4.sessions : null,
+      analyticsUsers: ga4 && !ga4.error ? ga4.users : null,
+      analyticsOrganicSessions: ga4 && !ga4.error ? ga4.organic_sessions : null,
+      analyticsConversions: ga4 && !ga4.error ? ga4.conversions : null,
+    },
+  };
+}
+
+// Accumulates report history across daily runs by reading the data.json this script is about
+// to overwrite. Replaces today's entry if the Action re-runs same-day instead of duplicating.
+function loadPreviousReports() {
+  try {
+    const prev = JSON.parse(fs.readFileSync(OUT, 'utf8'));
+    return Array.isArray(prev.reports) ? prev.reports : [];
+  } catch {
+    return [];
+  }
+}
+
 async function main() {
   console.log('Generating data.json for GitHub Pages dashboard...');
 
@@ -305,6 +354,9 @@ async function main() {
 
   const trend = computeTrend(posts, pages);
   const audit = await runLightAudit(posts, pages);
+
+  const todaysReport = buildDailyReport({ todayStr, publishedToday, lpPublishedToday, posts, pages, gsc, ga4, audit });
+  const reports = [todaysReport, ...loadPreviousReports().filter(r => r.period !== todayStr)].slice(0, 14);
 
   const data = {
     generated_at: new Date().toISOString(),
@@ -339,7 +391,7 @@ async function main() {
     },
     trend,
     seo_issues:    audit.issues,
-    reports:       [],
+    reports,
     gsc_trend:     gscResult?.trend || [],
     pages:         posts,
     landing_pages: pages,

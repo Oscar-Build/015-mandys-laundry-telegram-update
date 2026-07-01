@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-01T16:56:14.764Z",
+  "generated_at": "2026-07-01T17:08:53.460Z",
   "dashboard": {
     "overview": {
       "total_pages": 100,
@@ -22,7 +22,7 @@
       "avg_ctr": "0.9",
       "avg_position": "32.5",
       "date_range": "28 days",
-      "synced_at": "2026-07-01T16:56:03.351Z"
+      "synced_at": "2026-07-01T17:08:40.231Z"
     },
     "analytics": {
       "sessions": 0,
@@ -32,13 +32,13 @@
       "avg_session_duration": null,
       "conversions": 0,
       "organic_sessions": null,
-      "synced_at": "2026-07-01T16:56:03.193Z"
+      "synced_at": "2026-07-01T17:08:40.331Z"
     },
     "audit": {
       "pages_audited": 16,
       "issues_found": 34,
       "issues_fixed": 0,
-      "completed_at": "2026-07-01T16:56:14.764Z",
+      "completed_at": "2026-07-01T17:08:53.454Z",
       "status": "completed",
       "issues": [
         {
@@ -47,7 +47,7 @@
           "url": "https://mandyslaundry.com",
           "description": "Title is 64 chars (60 max): \"Local Laundry Services Near You - Los An...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:05.764Z"
+          "detected_at": "2026-07-01T17:08:44.420Z"
         },
         {
           "type": "meta_description_too_long",
@@ -55,7 +55,7 @@
           "url": "https://mandyslaundry.com",
           "description": "Meta description is 235 chars (160 max)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:05.764Z"
+          "detected_at": "2026-07-01T17:08:44.420Z"
         },
         {
           "type": "missing_h1",
@@ -63,7 +63,7 @@
           "url": "https://mandyslaundry.com",
           "description": "Page is missing an H1 tag",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:05.764Z"
+          "detected_at": "2026-07-01T17:08:44.420Z"
         },
         {
           "type": "thin_content",
@@ -71,7 +71,7 @@
           "url": "https://mandyslaundry.com",
           "description": "Page has ~364 words (minimum: 800)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:05.764Z"
+          "detected_at": "2026-07-01T17:08:44.420Z"
         },
         {
           "type": "title_too_long",
@@ -79,7 +79,7 @@
           "url": "https://mandyslaundry.com/wash-and-fold-anaheim-ca/",
           "description": "Title is 74 chars (60 max): \"Wash and Fold in Anaheim, CA | Mandy&#03...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:06.439Z"
+          "detected_at": "2026-07-01T17:08:45.111Z"
         },
         {
           "type": "title_too_long",
@@ -87,7 +87,7 @@
           "url": "https://mandyslaundry.com/dry-cleaning-anaheim-ca/",
           "description": "Title is 89 chars (60 max): \"Dry Cleaning in Anaheim, CA | Mandy&#039...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:07.123Z"
+          "detected_at": "2026-07-01T17:08:45.793Z"
         },
         {
           "type": "title_too_long",
@@ -95,7 +95,7 @@
           "url": "https://mandyslaundry.com/laundry-pickup-anaheim-ca/",
           "description": "Title is 75 chars (60 max): \"Laundry Pickup in Anaheim, CA | Mandy&#0...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:07.795Z"
+          "detected_at": "2026-07-01T17:08:46.479Z"
         },
         {
           "type": "title_too_long",
@@ -103,7 +103,7 @@
           "url": "https://mandyslaundry.com/commercial-laundry-san-diego/",
           "description": "Title is 78 chars (60 max): \"Commercial Laundry San Diego, CA | Mandy...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:08.480Z"
+          "detected_at": "2026-07-01T17:08:47.165Z"
         },
         {
           "type": "title_too_long",
@@ -111,7 +111,7 @@
           "url": "https://mandyslaundry.com/wash-and-fold-san-diego/",
           "description": "Title is 76 chars (60 max): \"Wash and Fold in San Diego, CA | Mandy&#...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:08.984Z"
+          "detected_at": "2026-07-01T17:08:47.664Z"
         },
         {
           "type": "title_too_long",
@@ -119,7 +119,7 @@
           "url": "https://mandyslaundry.com/dry-cleaning-san-diego/",
           "description": "Title is 75 chars (60 max): \"Dry Cleaning in San Diego, CA | Mandy&#0...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:09.664Z"
+          "detected_at": "2026-07-01T17:08:48.347Z"
         },
         {
           "type": "title_too_long",
@@ -127,7 +127,7 @@
           "url": "https://mandyslaundry.com/laundry-pickup-san-diego/",
           "description": "Title is 77 chars (60 max): \"Laundry Pickup in San Diego, CA | Mandy&...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:10.169Z"
+          "detected_at": "2026-07-01T17:08:48.844Z"
         },
         {
           "type": "title_too_long",
@@ -135,7 +135,7 @@
           "url": "https://mandyslaundry.com/commercial-laundry-los-angeles/",
           "description": "Title is 83 chars (60 max): \"Commercial Laundry in Los Angeles, CA | ...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:10.847Z"
+          "detected_at": "2026-07-01T17:08:49.528Z"
         },
         {
           "type": "title_too_long",
@@ -143,7 +143,7 @@
           "url": "https://mandyslaundry.com/wash-and-fold-los-angeles-2/",
           "description": "Title is 86 chars (60 max): \"Wash and Fold Service in Los Angeles, CA...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:11.352Z"
+          "detected_at": "2026-07-01T17:08:50.026Z"
         },
         {
           "type": "title_too_long",
@@ -151,7 +151,7 @@
           "url": "https://mandyslaundry.com/dry-cleaning-los-angeles-ca-2/",
           "description": "Title is 77 chars (60 max): \"Dry Cleaning in Los Angeles, CA | Mandy&...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:11.850Z"
+          "detected_at": "2026-07-01T17:08:50.522Z"
         },
         {
           "type": "title_too_long",
@@ -159,7 +159,7 @@
           "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
           "description": "Title is 82 chars (60 max): \"Medical Laundry Service in Camarillo | M...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.378Z"
+          "detected_at": "2026-07-01T17:08:51.054Z"
         },
         {
           "type": "missing_meta_description",
@@ -167,7 +167,7 @@
           "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
           "description": "Page is missing a meta description",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.378Z"
+          "detected_at": "2026-07-01T17:08:51.054Z"
         },
         {
           "type": "multiple_h1",
@@ -175,7 +175,7 @@
           "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
           "description": "Page has 2 H1 tags (should have exactly 1)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.378Z"
+          "detected_at": "2026-07-01T17:08:51.054Z"
         },
         {
           "type": "thin_content",
@@ -183,7 +183,7 @@
           "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
           "description": "Page has ~639 words (minimum: 800)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.378Z"
+          "detected_at": "2026-07-01T17:08:51.054Z"
         },
         {
           "type": "title_too_long",
@@ -191,7 +191,7 @@
           "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
           "description": "Title is 74 chars (60 max): \"Shop Towel Services for Auto Shops in Ca...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.900Z"
+          "detected_at": "2026-07-01T17:08:51.572Z"
         },
         {
           "type": "missing_meta_description",
@@ -199,7 +199,7 @@
           "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
           "description": "Page is missing a meta description",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.900Z"
+          "detected_at": "2026-07-01T17:08:51.572Z"
         },
         {
           "type": "multiple_h1",
@@ -207,7 +207,7 @@
           "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
           "description": "Page has 2 H1 tags (should have exactly 1)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.900Z"
+          "detected_at": "2026-07-01T17:08:51.572Z"
         },
         {
           "type": "thin_content",
@@ -215,7 +215,7 @@
           "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
           "description": "Page has ~655 words (minimum: 800)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:12.900Z"
+          "detected_at": "2026-07-01T17:08:51.572Z"
         },
         {
           "type": "title_too_long",
@@ -223,7 +223,7 @@
           "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
           "description": "Title is 75 chars (60 max): \"Uniform Laundry Services for Auto Shops ...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.430Z"
+          "detected_at": "2026-07-01T17:08:52.099Z"
         },
         {
           "type": "missing_meta_description",
@@ -231,7 +231,7 @@
           "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
           "description": "Page is missing a meta description",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.430Z"
+          "detected_at": "2026-07-01T17:08:52.099Z"
         },
         {
           "type": "multiple_h1",
@@ -239,7 +239,7 @@
           "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
           "description": "Page has 2 H1 tags (should have exactly 1)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.430Z"
+          "detected_at": "2026-07-01T17:08:52.099Z"
         },
         {
           "type": "thin_content",
@@ -247,7 +247,7 @@
           "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
           "description": "Page has ~662 words (minimum: 800)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.430Z"
+          "detected_at": "2026-07-01T17:08:52.099Z"
         },
         {
           "type": "title_too_long",
@@ -255,7 +255,7 @@
           "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
           "description": "Title is 82 chars (60 max): \"Auto Shop Towel Service in Camarillo - M...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.946Z"
+          "detected_at": "2026-07-01T17:08:52.616Z"
         },
         {
           "type": "missing_meta_description",
@@ -263,7 +263,7 @@
           "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
           "description": "Page is missing a meta description",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.946Z"
+          "detected_at": "2026-07-01T17:08:52.616Z"
         },
         {
           "type": "multiple_h1",
@@ -271,7 +271,7 @@
           "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
           "description": "Page has 2 H1 tags (should have exactly 1)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.946Z"
+          "detected_at": "2026-07-01T17:08:52.616Z"
         },
         {
           "type": "thin_content",
@@ -279,7 +279,7 @@
           "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
           "description": "Page has ~658 words (minimum: 800)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:13.946Z"
+          "detected_at": "2026-07-01T17:08:52.616Z"
         },
         {
           "type": "title_too_long",
@@ -287,7 +287,7 @@
           "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
           "description": "Title is 78 chars (60 max): \"Commercial Laundry Services for Auto Sho...\"",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:14.458Z"
+          "detected_at": "2026-07-01T17:08:53.142Z"
         },
         {
           "type": "missing_meta_description",
@@ -295,7 +295,7 @@
           "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
           "description": "Page is missing a meta description",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:14.458Z"
+          "detected_at": "2026-07-01T17:08:53.142Z"
         },
         {
           "type": "multiple_h1",
@@ -303,7 +303,7 @@
           "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
           "description": "Page has 2 H1 tags (should have exactly 1)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:14.458Z"
+          "detected_at": "2026-07-01T17:08:53.143Z"
         },
         {
           "type": "thin_content",
@@ -311,7 +311,7 @@
           "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
           "description": "Page has ~667 words (minimum: 800)",
           "status": "open",
-          "detected_at": "2026-07-01T16:56:14.458Z"
+          "detected_at": "2026-07-01T17:08:53.143Z"
         }
       ]
     },
@@ -403,7 +403,7 @@
       "url": "https://mandyslaundry.com",
       "description": "Title is 64 chars (60 max): \"Local Laundry Services Near You - Los An...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:05.764Z"
+      "detected_at": "2026-07-01T17:08:44.420Z"
     },
     {
       "type": "meta_description_too_long",
@@ -411,7 +411,7 @@
       "url": "https://mandyslaundry.com",
       "description": "Meta description is 235 chars (160 max)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:05.764Z"
+      "detected_at": "2026-07-01T17:08:44.420Z"
     },
     {
       "type": "missing_h1",
@@ -419,7 +419,7 @@
       "url": "https://mandyslaundry.com",
       "description": "Page is missing an H1 tag",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:05.764Z"
+      "detected_at": "2026-07-01T17:08:44.420Z"
     },
     {
       "type": "thin_content",
@@ -427,7 +427,7 @@
       "url": "https://mandyslaundry.com",
       "description": "Page has ~364 words (minimum: 800)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:05.764Z"
+      "detected_at": "2026-07-01T17:08:44.420Z"
     },
     {
       "type": "title_too_long",
@@ -435,7 +435,7 @@
       "url": "https://mandyslaundry.com/wash-and-fold-anaheim-ca/",
       "description": "Title is 74 chars (60 max): \"Wash and Fold in Anaheim, CA | Mandy&#03...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:06.439Z"
+      "detected_at": "2026-07-01T17:08:45.111Z"
     },
     {
       "type": "title_too_long",
@@ -443,7 +443,7 @@
       "url": "https://mandyslaundry.com/dry-cleaning-anaheim-ca/",
       "description": "Title is 89 chars (60 max): \"Dry Cleaning in Anaheim, CA | Mandy&#039...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:07.123Z"
+      "detected_at": "2026-07-01T17:08:45.793Z"
     },
     {
       "type": "title_too_long",
@@ -451,7 +451,7 @@
       "url": "https://mandyslaundry.com/laundry-pickup-anaheim-ca/",
       "description": "Title is 75 chars (60 max): \"Laundry Pickup in Anaheim, CA | Mandy&#0...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:07.795Z"
+      "detected_at": "2026-07-01T17:08:46.479Z"
     },
     {
       "type": "title_too_long",
@@ -459,7 +459,7 @@
       "url": "https://mandyslaundry.com/commercial-laundry-san-diego/",
       "description": "Title is 78 chars (60 max): \"Commercial Laundry San Diego, CA | Mandy...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:08.480Z"
+      "detected_at": "2026-07-01T17:08:47.165Z"
     },
     {
       "type": "title_too_long",
@@ -467,7 +467,7 @@
       "url": "https://mandyslaundry.com/wash-and-fold-san-diego/",
       "description": "Title is 76 chars (60 max): \"Wash and Fold in San Diego, CA | Mandy&#...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:08.984Z"
+      "detected_at": "2026-07-01T17:08:47.664Z"
     },
     {
       "type": "title_too_long",
@@ -475,7 +475,7 @@
       "url": "https://mandyslaundry.com/dry-cleaning-san-diego/",
       "description": "Title is 75 chars (60 max): \"Dry Cleaning in San Diego, CA | Mandy&#0...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:09.664Z"
+      "detected_at": "2026-07-01T17:08:48.347Z"
     },
     {
       "type": "title_too_long",
@@ -483,7 +483,7 @@
       "url": "https://mandyslaundry.com/laundry-pickup-san-diego/",
       "description": "Title is 77 chars (60 max): \"Laundry Pickup in San Diego, CA | Mandy&...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:10.169Z"
+      "detected_at": "2026-07-01T17:08:48.844Z"
     },
     {
       "type": "title_too_long",
@@ -491,7 +491,7 @@
       "url": "https://mandyslaundry.com/commercial-laundry-los-angeles/",
       "description": "Title is 83 chars (60 max): \"Commercial Laundry in Los Angeles, CA | ...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:10.847Z"
+      "detected_at": "2026-07-01T17:08:49.528Z"
     },
     {
       "type": "title_too_long",
@@ -499,7 +499,7 @@
       "url": "https://mandyslaundry.com/wash-and-fold-los-angeles-2/",
       "description": "Title is 86 chars (60 max): \"Wash and Fold Service in Los Angeles, CA...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:11.352Z"
+      "detected_at": "2026-07-01T17:08:50.026Z"
     },
     {
       "type": "title_too_long",
@@ -507,7 +507,7 @@
       "url": "https://mandyslaundry.com/dry-cleaning-los-angeles-ca-2/",
       "description": "Title is 77 chars (60 max): \"Dry Cleaning in Los Angeles, CA | Mandy&...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:11.850Z"
+      "detected_at": "2026-07-01T17:08:50.522Z"
     },
     {
       "type": "title_too_long",
@@ -515,7 +515,7 @@
       "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
       "description": "Title is 82 chars (60 max): \"Medical Laundry Service in Camarillo | M...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.378Z"
+      "detected_at": "2026-07-01T17:08:51.054Z"
     },
     {
       "type": "missing_meta_description",
@@ -523,7 +523,7 @@
       "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
       "description": "Page is missing a meta description",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.378Z"
+      "detected_at": "2026-07-01T17:08:51.054Z"
     },
     {
       "type": "multiple_h1",
@@ -531,7 +531,7 @@
       "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
       "description": "Page has 2 H1 tags (should have exactly 1)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.378Z"
+      "detected_at": "2026-07-01T17:08:51.054Z"
     },
     {
       "type": "thin_content",
@@ -539,7 +539,7 @@
       "url": "https://mandyslaundry.com/medical-clinic-laundry-camarillo/",
       "description": "Page has ~639 words (minimum: 800)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.378Z"
+      "detected_at": "2026-07-01T17:08:51.054Z"
     },
     {
       "type": "title_too_long",
@@ -547,7 +547,7 @@
       "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
       "description": "Title is 74 chars (60 max): \"Shop Towel Services for Auto Shops in Ca...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.900Z"
+      "detected_at": "2026-07-01T17:08:51.572Z"
     },
     {
       "type": "missing_meta_description",
@@ -555,7 +555,7 @@
       "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
       "description": "Page is missing a meta description",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.900Z"
+      "detected_at": "2026-07-01T17:08:51.572Z"
     },
     {
       "type": "multiple_h1",
@@ -563,7 +563,7 @@
       "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
       "description": "Page has 2 H1 tags (should have exactly 1)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.900Z"
+      "detected_at": "2026-07-01T17:08:51.572Z"
     },
     {
       "type": "thin_content",
@@ -571,7 +571,7 @@
       "url": "https://mandyslaundry.com/auto-shop-shop-towel-laundry-service-camarillo/",
       "description": "Page has ~655 words (minimum: 800)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:12.900Z"
+      "detected_at": "2026-07-01T17:08:51.572Z"
     },
     {
       "type": "title_too_long",
@@ -579,7 +579,7 @@
       "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
       "description": "Title is 75 chars (60 max): \"Uniform Laundry Services for Auto Shops ...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.430Z"
+      "detected_at": "2026-07-01T17:08:52.099Z"
     },
     {
       "type": "missing_meta_description",
@@ -587,7 +587,7 @@
       "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
       "description": "Page is missing a meta description",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.430Z"
+      "detected_at": "2026-07-01T17:08:52.099Z"
     },
     {
       "type": "multiple_h1",
@@ -595,7 +595,7 @@
       "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
       "description": "Page has 2 H1 tags (should have exactly 1)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.430Z"
+      "detected_at": "2026-07-01T17:08:52.099Z"
     },
     {
       "type": "thin_content",
@@ -603,7 +603,7 @@
       "url": "https://mandyslaundry.com/auto-shop-uniform-laundry-camarillo/",
       "description": "Page has ~662 words (minimum: 800)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.430Z"
+      "detected_at": "2026-07-01T17:08:52.099Z"
     },
     {
       "type": "title_too_long",
@@ -611,7 +611,7 @@
       "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
       "description": "Title is 82 chars (60 max): \"Auto Shop Towel Service in Camarillo - M...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.946Z"
+      "detected_at": "2026-07-01T17:08:52.616Z"
     },
     {
       "type": "missing_meta_description",
@@ -619,7 +619,7 @@
       "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
       "description": "Page is missing a meta description",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.946Z"
+      "detected_at": "2026-07-01T17:08:52.616Z"
     },
     {
       "type": "multiple_h1",
@@ -627,7 +627,7 @@
       "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
       "description": "Page has 2 H1 tags (should have exactly 1)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.946Z"
+      "detected_at": "2026-07-01T17:08:52.616Z"
     },
     {
       "type": "thin_content",
@@ -635,7 +635,7 @@
       "url": "https://mandyslaundry.com/auto-shop-towel-service-camarillo/",
       "description": "Page has ~658 words (minimum: 800)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:13.946Z"
+      "detected_at": "2026-07-01T17:08:52.616Z"
     },
     {
       "type": "title_too_long",
@@ -643,7 +643,7 @@
       "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
       "description": "Title is 78 chars (60 max): \"Commercial Laundry Services for Auto Sho...\"",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:14.458Z"
+      "detected_at": "2026-07-01T17:08:53.142Z"
     },
     {
       "type": "missing_meta_description",
@@ -651,7 +651,7 @@
       "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
       "description": "Page is missing a meta description",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:14.458Z"
+      "detected_at": "2026-07-01T17:08:53.142Z"
     },
     {
       "type": "multiple_h1",
@@ -659,7 +659,7 @@
       "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
       "description": "Page has 2 H1 tags (should have exactly 1)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:14.458Z"
+      "detected_at": "2026-07-01T17:08:53.143Z"
     },
     {
       "type": "thin_content",
@@ -667,10 +667,41 @@
       "url": "https://mandyslaundry.com/auto-shop-laundry-camarillo/",
       "description": "Page has ~667 words (minimum: 800)",
       "status": "open",
-      "detected_at": "2026-07-01T16:56:14.458Z"
+      "detected_at": "2026-07-01T17:08:53.143Z"
     }
   ],
-  "reports": [],
+  "reports": [
+    {
+      "type": "daily",
+      "period": "2026-07-01",
+      "generated_at": "2026-07-01T17:08:53.454Z",
+      "title": "Daily SEO Report — Thursday, July 2, 2026",
+      "summary": {
+        "date": "2026-07-01",
+        "pagesCreated": 10,
+        "pagesPublished": 10,
+        "pagesIndexed": 10,
+        "pagesFailed": 0,
+        "publishSuccessRate": "100%",
+        "indexSuccessRate": "100%",
+        "landingPagesTotal": 100,
+        "landingPagesPublished": 32,
+        "seoIssuesOpen": 34,
+        "seoIssuesResolvedToday": 0,
+        "auditPagesScanned": 16,
+        "auditIssuesFound": 34,
+        "auditLastRun": "2026-07-01T17:08:53.454Z",
+        "gscImpressions": 13122,
+        "gscClicks": 115,
+        "gscAvgCtr": "0.9",
+        "gscAvgPosition": "32.5",
+        "analyticsSessions": 0,
+        "analyticsUsers": 0,
+        "analyticsOrganicSessions": null,
+        "analyticsConversions": 0
+      }
+    }
+  ],
   "gsc_trend": [
     {
       "date": "2026-06-29",

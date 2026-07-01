@@ -10,6 +10,7 @@ const tenMinuteCheckJob = require('./jobs/tenMinuteCheck');
 const hourlyCheckJob = require('./jobs/hourlyCheck');
 const analyticsSyncJob = require('./jobs/analyticsSync');
 const weeklyAuditJob = require('./jobs/weeklyAudit');
+const seoWorker = require('../workers/SEOWorker');
 const endOfDayReportJob = require('./jobs/endOfDayReport');
 const autoPushJob = require('./jobs/autoPush');
 const dailyCheckinJob = require('./jobs/dailyCheckin');
@@ -83,6 +84,9 @@ function start() {
 
   // ── Every Monday 3:00 AM: full site audit + weekly report ───────────────────
   schedule('Weekly Audit', config.cron.weeklyAudit, () => weeklyAuditJob.run());
+
+  // ── Every 3 hours: auto-fix open SEO issues (meta description, og:title, canonical, title length) ─
+  schedule('SEO Auto-Fix', config.cron.seoAutoFix, () => seoWorker.autoFixIssues());
 
   registeredTasks.forEach(({ task }) => task.start());
 
