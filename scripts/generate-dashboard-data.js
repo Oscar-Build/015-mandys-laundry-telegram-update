@@ -155,8 +155,9 @@ async function fetchGSC() {
       trend: gscTrend,
     };
   } catch (err) {
-    console.warn('GSC fetch failed:', err.response?.data?.error?.message || err.message);
-    return null;
+    const message = err.response?.data?.error?.message || err.message;
+    console.warn('GSC fetch failed:', message);
+    return { error: message };
   }
 }
 
@@ -207,8 +208,9 @@ async function fetchGA4() {
       synced_at:            new Date().toISOString(),
     };
   } catch (err) {
-    console.warn('GA4 fetch failed:', err.response?.data?.error?.message || err.message);
-    return null;
+    const message = err.response?.data?.error?.message || err.message;
+    console.warn('GA4 fetch failed:', message);
+    return { error: message };
   }
 }
 
@@ -329,7 +331,7 @@ async function main() {
         avg_position: gsc.avg_position,
         date_range:   '28 days',
         synced_at:    gsc.synced_at,
-      } : {},
+      } : (gscResult?.error ? { error: gscResult.error } : {}),
       analytics: ga4 || {},
       audit,
       workers: { content: 'running', seo: 'running', analytics: 'running', monitoring: 'running', queue: 'running' },
@@ -350,11 +352,15 @@ async function main() {
   console.log(`  Landing pages: ${pages.length}`);
   if (gsc) {
     console.log(`  GSC impressions: ${gsc.impressions}  clicks: ${gsc.clicks}  CTR: ${gsc.avg_ctr}%`);
+  } else if (gscResult?.error) {
+    console.log(`  GSC: failed — ${gscResult.error}`);
   } else {
     console.log('  GSC: not connected');
   }
-  if (ga4) {
+  if (ga4 && !ga4.error) {
     console.log(`  GA4 sessions: ${ga4.sessions}  users: ${ga4.users}  organic: ${ga4.organic_sessions}`);
+  } else if (ga4?.error) {
+    console.log(`  GA4: failed — ${ga4.error}`);
   } else {
     console.log('  GA4: not connected');
   }
