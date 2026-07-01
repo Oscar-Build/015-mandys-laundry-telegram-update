@@ -12,7 +12,6 @@ const analyticsSyncJob = require('./jobs/analyticsSync');
 const weeklyAuditJob = require('./jobs/weeklyAudit');
 const endOfDayReportJob = require('./jobs/endOfDayReport');
 const autoPushJob = require('./jobs/autoPush');
-const videoScriptJob = require('./jobs/videoScript');
 const dailyCheckinJob = require('./jobs/dailyCheckin');
 const { runBlogBatch } = require('../workers/ContentWorker');
 const { runLandingPageBatch } = require('../workers/ContentWorker');
@@ -69,9 +68,6 @@ function start() {
 
   // ── Daily 8:00 AM: send daily summary to Telegram ───────────────────────────
   schedule('Daily Summary', config.cron.dailySummary, () => dailySummaryJob.run());
-
-  // ── Daily 9:00 AM: generate video script + send to Telegram ─────────────────
-  schedule('Video Script', '0 9 * * *', () => videoScriptJob.run());
 
   // ── Every 60 minutes: auto-push changes to GitHub ───────────────────────────
   schedule('Auto Push', '0 * * * *', () => autoPushJob.run());
