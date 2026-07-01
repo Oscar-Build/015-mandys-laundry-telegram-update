@@ -755,9 +755,12 @@ function kpiCard({ icon, label, value, sub, pill, color }) {
 function renderDashboard(d) {
   const ov = d.overview || {}, gsc = d.gsc || {}, an = d.analytics || {}, au = d.audit || {};
 
-  const totalSitePages = (ov.total_pages || 0) + (ov.landing_pages_total || 0);
+  const totalSitePages = ov.total_site_pages || ((ov.total_pages || 0) + (ov.landing_pages_total || 0));
+  const blogLabel = ov.wp_counts_live
+    ? `${fmtNum(ov.total_wp_posts)} posts · ${fmtNum(ov.total_wp_pages)} pages · ${fmtNum(ov.landing_pages_total)} landing`
+    : `${fmtNum(ov.total_pages)} blog · ${fmtNum(ov.landing_pages_total)} landing`;
   document.getElementById('kpi-grid').innerHTML = [
-    { icon:'📄', label:'Total Pages (Site)', value: fmtNum(totalSitePages), sub:`${fmtNum(ov.total_pages)} blog · ${fmtNum(ov.landing_pages_total)} landing`, color:'' },
+    { icon:'📄', label:'Total Pages (Site)', value: fmtNum(totalSitePages), sub: blogLabel, color:'' },
     { icon:'✅', label:'Published Today', value: fmtNum(ov.pages_published_today), sub:`${fmtNum(ov.pages_indexed_today)} indexed`, color:'green' },
     { icon:'🗺️', label:'Landing Pages This Week', value: fmtNum(ov.landing_pages_published_this_week), sub:`${fmtNum(ov.landing_pages_published)} total published`, color:'' },
     { icon:'📊', label:'Total Indexed', value: fmtNum(ov.pages_indexed_total), sub:'All time', color:'green' },

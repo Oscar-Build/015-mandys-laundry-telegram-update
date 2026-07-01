@@ -3,13 +3,37 @@
 const db = require('./Database');
 const logger = require('./Logger');
 const scheduler = require('../scheduler/Scheduler');
+const axios = require('axios');
+const config = require('../config');
+
+async function fetchWPCounts() {
+  const { apiUrl, username, appPassword } = config.wordpress || {};
+  if (!apiUrl || !username || !appPassword) return null;
+  const auth = Buffer.from(`${username}:${appPassword}`).toString('base64');
+  const headers = { Authorization: `Basic ${auth}` };
+  try {
+    const [postsRes, pagesRes] = await Promise.all([
+      axios.get(`${apiUrl}/posts`, { params: { per_page: 1, status: 'publish' }, headers, timeout: 8000 }),
+      axios.get(`${apiUrl}/pages`, { params: { per_page: 1, status: 'publish' }, headers, timeout: 8000 }),
+    ]);
+    const posts = parseInt(postsRes.headers['x-wp-total'] || '0', 10);
+    const pages = parseInt(pagesRes.headers['x-wp-total'] || '0', 10);
+    return { posts, pages, total: posts + pages };
+  } catch (err) {
+    logger.warn('Could not fetch WP counts live', { error: err.message });
+    return null;
+  }
+}
 
 /**
  * Returns the full dashboard payload for the /api/dashboard endpoint.
  */
-function getDashboard() {
+async function getDashboard() {
   try {
-    const stats = db.getDashboardStats();
+    const [stats, wpCounts] = await Promise.all([
+      Promise.resolve(db.getDashboardStats()),
+      fetchWPCounts(),
+    ]);
     const today = stats.metrics_today || {};
     const gsc = stats.latest_gsc || {};
     const analytics = stats.latest_analytics || {};
@@ -19,7 +43,11 @@ function getDashboard() {
     return {
       timestamp: new Date().toISOString(),
       overview: {
-        total_pages: stats.total_pages || 0,
+        total_pages: wpCounts ? wpCounts.posts : (stats.total_pages || 0),
+        total_wp_pages: wpCounts ? wpCounts.pages : 0,
+        total_wp_posts: wpCounts ? wpCounts.posts : (stats.total_pages || 0),
+        total_site_pages: wpCounts ? wpCounts.total + (lp.total || 0) : ((stats.total_pages || 0) + (lp.total || 0)),
+        wp_counts_live: !!wpCounts,
         pages_published_today: stats.pages_published_today || 0,
         pages_indexed_today: stats.pages_indexed_today || 0,
         pages_indexed_total: stats.pages_indexed_total || 0,

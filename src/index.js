@@ -55,7 +55,7 @@ function createRouter() {
         return serveJSON(res, { status: 'ok', uptime: process.uptime(), version: require('../package.json').version });
 
       case '/api/dashboard':
-        return serveJSON(res, metrics.getDashboard());
+        return serveJSON(res, await metrics.getDashboard());
 
       case '/api/trend':
         return serveJSON(res, metrics.getWeeklyTrend());
