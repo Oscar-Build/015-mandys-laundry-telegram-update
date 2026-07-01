@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-07-01T11:35:04.845Z",
+  "generated_at": "2026-07-01T16:19:05.217Z",
   "dashboard": {
     "overview": {
-      "total_pages": 92,
-      "pages_published_today": 0,
-      "pages_published_this_week": 5,
+      "total_pages": 100,
+      "pages_published_today": 10,
+      "pages_published_this_week": 15,
       "pages_indexed_today": 0,
       "pages_indexed_this_week": 0,
       "failed_jobs": 0,
@@ -16,7 +16,14 @@
       "lp_published_this_week": 73,
       "not_indexed_count": 0
     },
-    "gsc": {},
+    "gsc": {
+      "impressions": 13122,
+      "clicks": 115,
+      "avg_ctr": "0.9",
+      "avg_position": "32.5",
+      "date_range": "28 days",
+      "synced_at": "2026-07-01T16:19:03.635Z"
+    },
     "analytics": {},
     "audit": {},
     "workers": {
@@ -31,8 +38,174 @@
   "trend": [],
   "seo_issues": [],
   "reports": [],
-  "gsc_trend": [],
+  "gsc_trend": [
+    {
+      "date": "2026-06-29",
+      "impressions": 1359,
+      "clicks": 11
+    },
+    {
+      "date": "2026-06-28",
+      "impressions": 786,
+      "clicks": 8
+    },
+    {
+      "date": "2026-06-27",
+      "impressions": 734,
+      "clicks": 7
+    },
+    {
+      "date": "2026-06-26",
+      "impressions": 768,
+      "clicks": 2
+    },
+    {
+      "date": "2026-06-25",
+      "impressions": 1290,
+      "clicks": 9
+    },
+    {
+      "date": "2026-06-24",
+      "impressions": 1006,
+      "clicks": 2
+    },
+    {
+      "date": "2026-06-23",
+      "impressions": 631,
+      "clicks": 7
+    },
+    {
+      "date": "2026-06-22",
+      "impressions": 4159,
+      "clicks": 24
+    },
+    {
+      "date": "2026-06-21",
+      "impressions": 12196,
+      "clicks": 13
+    },
+    {
+      "date": "2026-06-20",
+      "impressions": 1685,
+      "clicks": 14
+    },
+    {
+      "date": "2026-06-19",
+      "impressions": 845,
+      "clicks": 6
+    },
+    {
+      "date": "2026-06-18",
+      "impressions": 926,
+      "clicks": 13
+    },
+    {
+      "date": "2026-06-17",
+      "impressions": 1000,
+      "clicks": 13
+    }
+  ],
   "pages": [
+    {
+      "id": "7255",
+      "title": "Wash and Fold in Anaheim, CA | Mandy&#8217;s Laundry",
+      "slug": "wash-and-fold-anaheim-ca",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/wash-and-fold-anaheim-ca/",
+      "published_at": "2026-07-01T13:42:37",
+      "indexed_at": "2026-07-01T13:42:37",
+      "created_at": "2026-07-01T13:42:37"
+    },
+    {
+      "id": "7253",
+      "title": "Dry Cleaning in Anaheim, CA | Mandy&#8217;s Laundry Premium Service",
+      "slug": "dry-cleaning-anaheim-ca",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/dry-cleaning-anaheim-ca/",
+      "published_at": "2026-07-01T13:41:18",
+      "indexed_at": "2026-07-01T13:41:18",
+      "created_at": "2026-07-01T13:41:18"
+    },
+    {
+      "id": "7251",
+      "title": "Laundry Pickup in Anaheim, CA | Mandy&#8217;s Laundry",
+      "slug": "laundry-pickup-anaheim-ca",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/laundry-pickup-anaheim-ca/",
+      "published_at": "2026-07-01T13:40:02",
+      "indexed_at": "2026-07-01T13:40:02",
+      "created_at": "2026-07-01T13:40:02"
+    },
+    {
+      "id": "7249",
+      "title": "Commercial Laundry San Diego, CA | Mandy&#8217;s Laundry",
+      "slug": "commercial-laundry-san-diego",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/commercial-laundry-san-diego/",
+      "published_at": "2026-07-01T13:39:08",
+      "indexed_at": "2026-07-01T13:39:08",
+      "created_at": "2026-07-01T13:39:08"
+    },
+    {
+      "id": "7247",
+      "title": "Wash and Fold in San Diego, CA | Mandy&#8217;s Laundry",
+      "slug": "wash-and-fold-san-diego",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/wash-and-fold-san-diego/",
+      "published_at": "2026-07-01T13:38:00",
+      "indexed_at": "2026-07-01T13:38:00",
+      "created_at": "2026-07-01T13:38:00"
+    },
+    {
+      "id": "7245",
+      "title": "Dry Cleaning in San Diego, CA | Mandy&#8217;s Laundry",
+      "slug": "dry-cleaning-san-diego",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/dry-cleaning-san-diego/",
+      "published_at": "2026-07-01T13:36:41",
+      "indexed_at": "2026-07-01T13:36:41",
+      "created_at": "2026-07-01T13:36:41"
+    },
+    {
+      "id": "7244",
+      "title": "Laundry Pickup in San Diego, CA | Mandy&#8217;s Laundry",
+      "slug": "laundry-pickup-san-diego",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/laundry-pickup-san-diego/",
+      "published_at": "2026-07-01T13:35:43",
+      "indexed_at": "2026-07-01T13:35:43",
+      "created_at": "2026-07-01T13:35:43"
+    },
+    {
+      "id": "7242",
+      "title": "Commercial Laundry in Los Angeles, CA | Mandy&#8217;s Laundry",
+      "slug": "commercial-laundry-los-angeles",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/commercial-laundry-los-angeles/",
+      "published_at": "2026-07-01T13:34:14",
+      "indexed_at": "2026-07-01T13:34:14",
+      "created_at": "2026-07-01T13:34:14"
+    },
+    {
+      "id": "7240",
+      "title": "Wash and Fold Service in Los Angeles, CA | Mandy&#8217;s Laundry",
+      "slug": "wash-and-fold-los-angeles-2",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/wash-and-fold-los-angeles-2/",
+      "published_at": "2026-07-01T13:32:54",
+      "indexed_at": "2026-07-01T13:32:54",
+      "created_at": "2026-07-01T13:32:54"
+    },
+    {
+      "id": "7238",
+      "title": "Dry Cleaning in Los Angeles, CA | Mandy&#8217;s Laundry",
+      "slug": "dry-cleaning-los-angeles-ca-2",
+      "status": "indexed",
+      "url": "https://mandyslaundry.com/dry-cleaning-los-angeles-ca-2/",
+      "published_at": "2026-07-01T13:31:21",
+      "indexed_at": "2026-07-01T13:31:21",
+      "created_at": "2026-07-01T13:31:21"
+    },
     {
       "id": "7072",
       "title": "How to Remove Common Laundry Stains by Fabric Type",
@@ -932,26 +1105,6 @@
       "published_at": "2020-12-01T14:30:18",
       "indexed_at": "2026-06-30T04:40:43",
       "created_at": "2020-12-01T14:30:18"
-    },
-    {
-      "id": "841",
-      "title": "Dry Cleaning or Laundry Washing &#8211; The Controversy",
-      "slug": "dry-cleaning-or-laundry-washing-the-controversy",
-      "status": "indexed",
-      "url": "https://mandyslaundry.com/dry-cleaning-or-laundry-washing-the-controversy/",
-      "published_at": "2020-11-19T14:09:40",
-      "indexed_at": "2026-06-30T04:40:49",
-      "created_at": "2020-11-19T14:09:40"
-    },
-    {
-      "id": "254",
-      "title": "Laundry in the Age of Covid-19",
-      "slug": "laundry-in-the-age-of-covid-19",
-      "status": "indexed",
-      "url": "https://mandyslaundry.com/laundry-in-the-age-of-covid-19/",
-      "published_at": "2020-11-17T14:22:18",
-      "indexed_at": "2026-06-30T04:40:53",
-      "created_at": "2020-11-17T14:22:18"
     }
   ],
   "landing_pages": [
