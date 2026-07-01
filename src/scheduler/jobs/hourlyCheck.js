@@ -1,12 +1,11 @@
 'use strict';
 
 const logger = require('../../services/Logger');
-const db = require('../../services/Database');
 const monitoring = require('../../workers/MonitoringWorker');
-const indexing = require('../../services/IndexingService');
+const { runIndexBatch } = require('../../workers/ContentWorker');
 
 /**
- * Runs every hour: website uptime, indexing retries, and broken link scan.
+ * Runs every hour: website uptime + index up to 20 published pages.
  */
 async function run() {
   logger.info('Running hourly check');
@@ -20,29 +19,12 @@ async function run() {
     logger.warn('Hourly uptime check failed', { error: err.message });
   }
 
-  // 2. Retry failed indexing submissions
+  // 2. Index batch — submit up to 20 published-but-not-indexed pages to Google
   try {
-    const failedPages = db.getDb().prepare(`
-      SELECT * FROM pages WHERE status = 'index_failed' AND url IS NOT NULL
-      ORDER BY created_at DESC LIMIT 5
-    `).all();
-
-    let retried = 0;
-    for (const page of failedPages) {
-      if (indexing.isConfigured()) {
-        try {
-          await indexing.submitForIndexing(page.url);
-          db.updatePage(page.id, { status: 'indexed', indexed_at: new Date().toISOString() });
-          db.incrementMetric('pages_indexed');
-          retried++;
-          logger.info('Hourly retry: indexing succeeded', { url: page.url });
-        } catch (_) {}
-      }
-    }
-    results.indexingRetries = retried;
+    results.indexing = await runIndexBatch();
   } catch (err) {
-    logger.warn('Hourly indexing retry failed', { error: err.message });
-    results.indexingRetries = 0;
+    results.indexing = { total: 0, passed: 0, error: err.message };
+    logger.warn('Hourly index batch failed', { error: err.message });
   }
 
   logger.info('Hourly check complete', results);

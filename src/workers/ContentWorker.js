@@ -160,17 +160,16 @@ async function runLandingPageBatch() {
 // ---------- Blog Posts ----------
 
 /**
- * Full pipeline for one blog post: generate → publish → index.
+ * STAGE 1 — Generate only: creates content via Claude and saves to DB.
+ * Does NOT publish to WordPress. Runs at 6 AM.
  */
 async function runBlogWorkflow(topic) {
   const pageId = uuidv4();
-  logger.info('Starting blog workflow', { topic });
+  logger.info('Starting blog generation', { topic });
 
   db.createPage({ id: pageId, website: WEBSITE, project: PROJECT, title: topic, slug: '' });
-  await telegram.notifyPageCreated({ id: pageId, website: WEBSITE, project: PROJECT, title: topic });
   db.incrementMetric('pages_created');
 
-  // Generate
   let postData;
   try {
     const genStart = Date.now();
@@ -180,25 +179,49 @@ async function runBlogWorkflow(topic) {
     );
     const genMs = Date.now() - genStart;
 
+    const imageUrl = imageService.getImageUrl(topic, postData.slug);
+    const imageHTML = imageService.buildImageHTML(imageUrl, postData.title);
+    const fullHTML = imageHTML + blogGen.buildBlogHTML(postData);
+
     db.updatePage(pageId, {
       title: postData.title,
       slug: postData.slug,
       status: 'content_generated',
       content_generated_at: new Date().toISOString(),
       duration_ms: genMs,
+      generated_data: JSON.stringify({
+        title: postData.title,
+        slug: postData.slug,
+        fullHTML,
+        metaDescription: postData.metaDescription,
+        primaryKeyword: postData.primaryKeyword,
+        secondaryKeywords: postData.secondaryKeywords || [],
+        imageUrl,
+      }),
     });
-    await telegram.notifyContentGenerated({ ...db.getPage(pageId), duration_ms: genMs });
   } catch (err) {
     db.updatePage(pageId, { status: 'generation_failed', error: err.message });
-    await telegram.notifyGenerationFailed({ id: pageId, website: WEBSITE, project: PROJECT, title: topic }, err.message);
     return { success: false, stage: 'generation', error: err.message };
+  }
+
+  return { success: true, pageId, stage: 'generated' };
+}
+
+/**
+ * STAGE 2 — Publish one content_generated page to WordPress.
+ */
+async function runPublishBlogPost(page) {
+  if (!page.generated_data) return { success: false, error: 'No generated data' };
+  let data;
+  try { data = JSON.parse(page.generated_data); } catch (_) {
+    return { success: false, error: 'Invalid generated data' };
   }
 
   // Duplicate check
   try {
-    const exists = await publisher.pageExists(postData.slug);
+    const exists = await publisher.pageExists(data.slug);
     if (exists) {
-      db.updatePage(pageId, { status: 'skipped_duplicate' });
+      db.updatePage(page.id, { status: 'skipped_duplicate' });
       return { success: true, stage: 'skipped_duplicate' };
     }
   } catch (_) {}
@@ -207,24 +230,20 @@ async function runBlogWorkflow(topic) {
   let publishResult;
   try {
     const pubStart = Date.now();
-    const imageUrl = imageService.getImageUrl(topic, postData.slug);
-    const imageHTML = imageService.buildImageHTML(imageUrl, postData.title);
-    const fullHTML = imageHTML + blogGen.buildBlogHTML(postData);
     publishResult = await retry.withRetry(
       () => publisher.publishPage({
-        title: postData.title,
-        slug: postData.slug,
-        content: fullHTML,
-        metaDescription: postData.metaDescription,
-        keywords: [postData.primaryKeyword, ...(postData.secondaryKeywords || [])],
-        imageUrl,
+        title: data.title,
+        slug: data.slug,
+        content: data.fullHTML,
+        metaDescription: data.metaDescription,
+        keywords: [data.primaryKeyword, ...(data.secondaryKeywords || [])],
+        imageUrl: data.imageUrl,
       }),
-      { page: { id: pageId, website: WEBSITE, project: PROJECT, title: postData.title }, label: 'blog publish' }
+      { page: { id: page.id, website: WEBSITE, project: PROJECT, title: data.title }, label: 'blog publish' }
     );
     const pubMs = Date.now() - pubStart;
 
-    db.updatePage(pageId, {
-      title: postData.title,
+    db.updatePage(page.id, {
       url: publishResult.url,
       status: 'published',
       published_at: new Date().toISOString(),
@@ -232,43 +251,82 @@ async function runBlogWorkflow(topic) {
     });
     db.updateAvgMetric('avg_publish_ms', pubMs);
     db.incrementMetric('pages_published');
-    await telegram.notifyPagePublished({ ...db.getPage(pageId), duration_ms: pubMs });
+    await telegram.notifyPagePublished({ ...db.getPage(page.id), duration_ms: pubMs });
   } catch (err) {
-    db.updatePage(pageId, { status: 'publish_failed', error: err.message });
-    await telegram.notifyPublishFailed(db.getPage(pageId) || { id: pageId, website: WEBSITE, project: PROJECT, title: topic }, err.message);
-    return { success: false, stage: 'publishing', error: err.message };
+    db.updatePage(page.id, { status: 'publish_failed', error: err.message });
+    return { success: false, error: err.message };
   }
 
-  // Index
-  try {
-    const idxStart = Date.now();
-    await telegram.notifyIndexingSubmitted({ ...db.getPage(pageId), url: publishResult.url });
-    await retry.withRetry(
-      () => indexer.submitForIndexing(publishResult.url),
-      { page: db.getPage(pageId), label: 'blog indexing' }
-    );
-    const idxMs = Date.now() - idxStart;
-    db.updatePage(pageId, { status: 'indexed', indexed_at: new Date().toISOString(), duration_ms: idxMs });
-    db.updateAvgMetric('avg_index_ms', idxMs);
-    db.incrementMetric('pages_indexed');
-    await telegram.notifyPageIndexed({ ...db.getPage(pageId), duration_ms: idxMs });
-  } catch (err) {
-    db.updatePage(pageId, { status: 'index_failed', error: err.message });
-    await telegram.notifyIndexingFailed(db.getPage(pageId), err.message);
-  }
-
-  const finalPage = db.getPage(pageId);
-  await telegram.notifyWorkflowCompleted({ ...finalPage, url: publishResult.url });
-
-  return { success: true, pageId, url: publishResult.url };
+  return { success: true, pageId: page.id, url: publishResult.url };
 }
 
 /**
- * Batch: generates topic ideas and runs a blog workflow for each.
+ * STAGE 2 batch — Picks up to PUBLISH_PER_RUN content_generated posts and publishes them.
+ * Runs at 7 AM.
+ */
+async function runPublishBatch() {
+  const limit = config.anthropic.publishPerRun;
+  const pages = db.getContentGeneratedPages(limit);
+  logger.info('Running publish batch', { queued: pages.length, limit });
+
+  if (pages.length === 0) {
+    logger.info('No content in queue to publish');
+    await telegram.send('📭 Publish batch: no content in queue yet (generation may still be running)');
+    return { total: 0, passed: 0 };
+  }
+
+  let passed = 0;
+  for (const page of pages) {
+    try {
+      const r = await runPublishBlogPost(page);
+      if (r.success) passed++;
+    } catch (err) {
+      logger.error('Publish batch error', { pageId: page.id, error: err.message });
+    }
+    await retry.sleep(3000);
+  }
+
+  await telegram.sendBatchSummary('Published', pages.length, passed);
+  return { total: pages.length, passed };
+}
+
+/**
+ * STAGE 3 — Index batch: picks published-but-not-indexed pages and submits to Google.
+ * Runs every hour.
+ */
+async function runIndexBatch() {
+  const limit = config.anthropic.indexPerRun;
+  const pages = db.getPublishedUnindexedPages(limit);
+  logger.info('Running index batch', { count: pages.length });
+
+  if (pages.length === 0 || !indexer.isConfigured()) return { total: 0, passed: 0 };
+
+  let passed = 0;
+  for (const page of pages) {
+    try {
+      await telegram.notifyIndexingSubmitted(db.getPage(page.id) || page);
+      await indexer.submitForIndexing(page.url);
+      db.updatePage(page.id, { status: 'indexed', indexed_at: new Date().toISOString() });
+      db.incrementMetric('pages_indexed');
+      await telegram.notifyPageIndexed(db.getPage(page.id) || page);
+      passed++;
+    } catch (err) {
+      db.updatePage(page.id, { status: 'index_failed', error: err.message });
+    }
+    await retry.sleep(2000);
+  }
+
+  logger.info('Index batch complete', { total: pages.length, passed });
+  return { total: pages.length, passed };
+}
+
+/**
+ * STAGE 1 batch — Generates PAGES_PER_RUN (30) topic ideas and saves content to DB.
+ * Runs at 6 AM. Does NOT publish — that is handled by runPublishBatch at 7 AM.
  */
 async function runBlogBatch() {
   const count = config.anthropic.pagesPerRun;
-  logger.info('Running blog batch', { count });
+  logger.info('Running blog generate batch', { count });
 
   let topics;
   try {
@@ -283,16 +341,26 @@ async function runBlogBatch() {
     try {
       const r = await runBlogWorkflow(topic);
       results.push({ topic, ...r });
-      await retry.sleep(3000);
+      await retry.sleep(2000);
     } catch (err) {
-      logger.error('Blog workflow error', { topic, error: err.message });
+      logger.error('Blog generation error', { topic, error: err.message });
       results.push({ topic, success: false, error: err.message });
     }
   }
 
   const passed = results.filter(r => r.success).length;
-  await telegram.sendBatchSummary('Blog Posts', topics.length, passed);
+  await telegram.send(
+    `✍️ <b>Content Generation Complete</b>\n\n` +
+    `📝 Generated: ${passed}/${topics.length} blog posts\n` +
+    `🕐 Publishing starts at 7:00 AM PST (10 posts)\n` +
+    `📈 Indexing runs hourly (up to 20 pages)`
+  );
   return results;
 }
 
-module.exports = { runLandingPageBatch, runLandingPageWorkflow, runBlogBatch, runBlogWorkflow };
+module.exports = {
+  runLandingPageBatch, runLandingPageWorkflow,
+  runBlogBatch, runBlogWorkflow,
+  runPublishBatch, runPublishBlogPost,
+  runIndexBatch,
+};

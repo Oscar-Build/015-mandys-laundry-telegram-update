@@ -13,7 +13,7 @@ const weeklyAuditJob = require('./jobs/weeklyAudit');
 const endOfDayReportJob = require('./jobs/endOfDayReport');
 const autoPushJob = require('./jobs/autoPush');
 const dailyCheckinJob = require('./jobs/dailyCheckin');
-const { runBlogBatch } = require('../workers/ContentWorker');
+const { runBlogBatch, runPublishBatch, runIndexBatch } = require('../workers/ContentWorker');
 const { runLandingPageBatch } = require('../workers/ContentWorker');
 
 const telegram = require('../services/TelegramService');
@@ -57,11 +57,14 @@ function start() {
   // ── Every hour: uptime + indexing retries ────────────────────────────────────
   schedule('Hourly Check', config.cron.hourlyCheck, () => hourlyCheckJob.run());
 
-  // ── Daily 6:00 AM: generate blog posts ──────────────────────────────────────
+  // ── Daily 6:00 AM: generate 30 blog posts (saved to DB, not published yet) ──
   schedule('Blog Content Generation', config.cron.contentGen, () => runBlogBatch());
 
-  // ── Daily 6:30 AM: generate local landing pages ─────────────────────────────
+  // ── Daily 6:30 AM: generate 10 landing pages (full pipeline) ────────────────
   schedule('Landing Page Generation', config.cron.landingPageGen, () => runLandingPageBatch());
+
+  // ── Daily 7:00 AM: publish 10 generated blog posts to WordPress ─────────────
+  schedule('Content Publish', config.cron.contentPublish, () => runPublishBatch());
 
   // ── Daily 7:00 AM: sync GSC + GA4 + send daily report ───────────────────────
   schedule('Analytics Sync', config.cron.analyticsSync, () => analyticsSyncJob.run());

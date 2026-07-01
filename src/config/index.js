@@ -30,8 +30,10 @@ const config = {
   anthropic: {
     apiKey: optional('ANTHROPIC_API_KEY'),
     model: optional('CONTENT_MODEL', 'claude-haiku-4-5-20251001'),
-    pagesPerRun: parseInt(optional('PAGES_PER_RUN', '5'), 10),
-    landingPagesPerRun: parseInt(optional('LANDING_PAGES_PER_RUN', '3'), 10),
+    pagesPerRun: parseInt(optional('PAGES_PER_RUN', '30'), 10),            // blog posts to generate per day
+    landingPagesPerRun: parseInt(optional('LANDING_PAGES_PER_RUN', '10'), 10), // landing pages per day
+    publishPerRun: parseInt(optional('PUBLISH_PER_RUN', '10'), 10),         // posts to publish per day
+    indexPerRun: parseInt(optional('INDEX_PER_RUN', '20'), 10),             // pages to index per hour
     niche: optional('CONTENT_NICHE', 'laundry services, dry cleaning, fabric care'),
   },
 
@@ -61,6 +63,7 @@ const config = {
     endOfDayReport: optional('END_OF_DAY_REPORT_CRON', '0 22 * * *'),
     healthCheck: optional('HEALTH_CHECK_CRON', '*/5 * * * *'),
     contentGen: optional('CONTENT_GEN_CRON', '0 6 * * *'),
+    contentPublish: optional('CONTENT_PUBLISH_CRON', '0 7 * * *'),
     landingPageGen: optional('LANDING_PAGE_GEN_CRON', '30 6 * * *'),
     tenMinuteCheck: optional('TEN_MINUTE_CHECK_CRON', '*/10 * * * *'),
     hourlyCheck: optional('HOURLY_CHECK_CRON', '0 * * * *'),

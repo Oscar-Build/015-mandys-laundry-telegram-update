@@ -186,6 +186,9 @@ function initSchema(db) {
     CREATE INDEX IF NOT EXISTS idx_gsc_metrics_date ON gsc_metrics(date);
     CREATE INDEX IF NOT EXISTS idx_landing_pages_status ON landing_pages(status);
   `);
+
+  // Migrations for existing databases
+  try { db.exec('ALTER TABLE pages ADD COLUMN generated_data TEXT'); } catch (_) {}
 }
 
 // --- Pages ---
@@ -539,10 +542,23 @@ function getDashboardStats() {
   };
 }
 
+function getContentGeneratedPages(limit) {
+  return getDb().prepare(
+    "SELECT * FROM pages WHERE status = 'content_generated' ORDER BY created_at ASC LIMIT ?"
+  ).all(limit);
+}
+
+function getPublishedUnindexedPages(limit) {
+  return getDb().prepare(
+    "SELECT * FROM pages WHERE status = 'published' AND url IS NOT NULL ORDER BY published_at ASC LIMIT ?"
+  ).all(limit);
+}
+
 module.exports = {
   getDb,
   // Pages
   createPage, updatePage, getPage, getPendingPages, getRecentPublishedPages,
+  getContentGeneratedPages, getPublishedUnindexedPages,
   // Landing pages
   createLandingPage, updateLandingPage, getPublishedLandingPageSlugs, getLandingPageStats,
   // Jobs
