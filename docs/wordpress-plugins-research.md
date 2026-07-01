@@ -26,6 +26,13 @@
 
 AEO targets voice search, Siri, Alexa, Google Assistant, and featured snippets. Key signals: FAQ schema, HowTo schema, direct-answer content.
 
+### ✅ RECOMMENDED FREE: AEO God Mode
+- **What it is:** Free WordPress plugin specifically built for Answer Engine Optimization. Works alongside both Yoast SEO and Rank Math (does not conflict).
+- **What it does:** Adds structured Q&A markup, optimizes content for direct-answer snippets, formats FAQ sections for voice search and AI Overviews.
+- **Compatibility:** Runs with Yoast + Rank Math simultaneously — fills the AEO gap those plugins leave.
+- **Install:** WordPress Admin → Plugins → Add New → search "AEO God Mode"
+- **Note:** Our automation already injects FAQPage schema on landing pages — AEO God Mode enhances the on-page formatting layer on top of that.
+
 ### ✅ RECOMMENDED FREE: Rank Math (covers AEO via schema)
 Already listed above. Rank Math's FAQ blocks and schema builder are the primary AEO tool.
 
